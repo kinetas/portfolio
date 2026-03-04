@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TRPG 웹 - 게임</title>
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body data-page="game">
+    <header class="topbar">
+      <div class="container topbar-inner">
+        <a class="brand" href="./index.html" aria-label="메인으로">
+          <span class="brand-badge">D</span>
+          <span>TRPG 웹</span>
+        </a>
+        <nav class="nav" data-nav>
+          <a href="./index.html" data-page="home">메인</a>
+          <a href="./character.html" data-page="character">캐릭터 생성</a>
+          <a href="./game.html" data-page="game">게임</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="section">
+      <div class="container">
+        <div class="card pad">
+          <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap">
+            <div>
+              <div class="pill">게임 화면</div>
+              <p class="subtitle" style="margin: 10px 0 0">
+                채팅에 <b class="mono">ndm</b> 형식(예: <span class="mono">3d6</span>, <span class="mono">1d20+3</span>)을 입력하면
+                주사위를 굴립니다.
+              </p>
+            </div>
+            <div class="btn-row" style="margin-top: 0">
+              <button class="btn" id="btnLoadLocal">로컬 캐릭터 불러오기</button>
+              <label class="btn primary" style="cursor: pointer">
+                xlsx 캐릭터 가져오기
+                <input id="fileImportGame" type="file" accept=".xlsx" style="display: none" />
+              </label>
+              <button class="btn" id="btnExportGame">xlsx 내보내기</button>
+              <button class="btn danger" id="btnClearChat">채팅 지우기</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="height: 14px"></div>
+
+        <div class="split">
+          <aside class="card pad" style="position: sticky; top: 78px">
+            <div style="display: flex; gap: 12px; align-items: center">
+              <div
+                id="portrait"
+                style="
+                  width: 64px;
+                  height: 64px;
+                  border-radius: 16px;
+                  border: 1px solid rgba(255, 255, 255, 0.12);
+                  background: rgba(255, 255, 255, 0.05);
+                  overflow: hidden;
+                  flex: 0 0 auto;
+                "
+              ></div>
+              <div style="min-width: 0">
+                <div class="pill" id="charNamePill">캐릭터: -</div>
+                <div class="muted" style="margin-top: 8px; font-size: 13px" id="charSub">플레이어: -</div>
+              </div>
+            </div>
+
+            <div class="hr"></div>
+
+            <div class="pill">체력/정신력</div>
+            <div style="height: 10px"></div>
+            <div class="stat">
+              <strong>체력</strong>
+              <span class="value" id="hpLine">0 / 0</span>
+            </div>
+            <div style="height: 8px"></div>
+            <div class="row">
+              <button class="btn" id="hpMinus" type="button">-1</button>
+              <button class="btn" id="hpPlus" type="button">+1</button>
+            </div>
+            <div style="height: 12px"></div>
+            <div class="stat">
+              <strong>정신력</strong>
+              <span class="value" id="mpLine">0 / 0</span>
+            </div>
+            <div style="height: 8px"></div>
+            <div class="row">
+              <button class="btn" id="mpMinus" type="button">-1</button>
+              <button class="btn" id="mpPlus" type="button">+1</button>
+            </div>
+
+            <div class="hr"></div>
+
+            <div class="pill">능력치</div>
+            <div style="height: 10px"></div>
+            <div class="grid2">
+              <div class="stat"><strong>STR</strong><span class="value" id="aStr">0</span></div>
+              <div class="stat"><strong>DEX</strong><span class="value" id="aDex">0</span></div>
+              <div class="stat"><strong>CON</strong><span class="value" id="aCon">0</span></div>
+              <div class="stat"><strong>INT</strong><span class="value" id="aInt">0</span></div>
+              <div class="stat"><strong>WIS</strong><span class="value" id="aWis">0</span></div>
+              <div class="stat"><strong>LUCK</strong><span class="value" id="aLuck">0</span></div>
+            </div>
+
+            <div style="height: 12px"></div>
+            <div class="pill">파생치</div>
+            <div style="height: 10px"></div>
+            <div class="grid2">
+              <div class="stat"><strong>공격</strong><span class="value" id="dAtk">0</span></div>
+              <div class="stat"><strong>방어</strong><span class="value" id="dDef">0</span></div>
+              <div class="stat"><strong>선제</strong><span class="value" id="dInit">0</span></div>
+              <div class="stat"><strong>이동</strong><span class="value" id="dMov">0</span></div>
+              <div class="stat"><strong>소지</strong><span class="value" id="dCar">0</span></div>
+              <div class="stat"><strong>스트레스</strong><span class="value" id="stressLine">0</span></div>
+            </div>
+
+            <div class="hr"></div>
+            <div class="pill">빠른 주사위</div>
+            <div style="height: 10px"></div>
+            <div class="btn-row" style="margin-top: 0">
+              <button class="btn" data-quick="1d4">1d4</button>
+              <button class="btn" data-quick="1d6">1d6</button>
+              <button class="btn" data-quick="1d8">1d8</button>
+              <button class="btn" data-quick="1d10">1d10</button>
+              <button class="btn" data-quick="1d12">1d12</button>
+              <button class="btn" data-quick="1d20">1d20</button>
+            </div>
+
+            <div class="hr"></div>
+            <div class="pill">AI 스토리 모드</div>
+            <p class="subtitle" style="margin: 10px 0 0">
+              장르를 골라 3줄 프롤로그로 시작하고, 채팅으로 계속 진행합니다. (API 키가 없으면 간단한 오프라인 GM으로 대체)
+            </p>
+            <div style="height: 10px"></div>
+            <label>장르</label>
+            <select class="field" id="storyGenre">
+              <option value="sf">SF</option>
+              <option value="fantasy">판타지</option>
+              <option value="mystery">기타(미스터리/호러)</option>
+            </select>
+            <div style="height: 10px"></div>
+            <div class="btn-row" style="margin-top: 0">
+              <button class="btn primary" id="btnStoryStart" type="button">스토리 시작</button>
+              <button class="btn" id="btnStoryToggle" type="button">스토리: OFF</button>
+              <button class="btn danger" id="btnStoryReset" type="button">스토리 초기화</button>
+            </div>
+            <div class="muted" id="aiStatus" style="margin-top: 10px; font-size: 12px"></div>
+
+            <div style="height: 10px"></div>
+            <details style="border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; padding: 10px 12px; background: rgba(255, 255, 255, 0.03)">
+              <summary style="cursor: pointer; color: var(--muted); font-size: 13px">AI 설정(선택)</summary>
+              <div style="height: 10px"></div>
+              <label>API Endpoint</label>
+              <input class="field" id="aiEndpoint" placeholder="https://api.openai.com/v1/chat/completions" />
+              <div style="height: 10px"></div>
+              <label>Model</label>
+              <input class="field" id="aiModel" placeholder="gpt-4o-mini (예시)" />
+              <div style="height: 10px"></div>
+              <label>API Key (브라우저에 로컬 저장됨)</label>
+              <input class="field" id="aiKey" type="password" placeholder="sk-..." />
+              <div style="height: 10px"></div>
+              <div class="btn-row" style="margin-top: 0">
+                <button class="btn ok" id="btnAiSave" type="button">설정 저장</button>
+                <button class="btn" id="btnAiTest" type="button">연결 테스트</button>
+                <button class="btn danger" id="btnAiClear" type="button">키 지우기</button>
+              </div>
+            </details>
+          </aside>
+
+          <section class="card chat">
+            <div class="chat-log" id="chatLog" aria-label="채팅 로그"></div>
+            <div class="chat-input">
+              <input class="field" id="chatInput" placeholder="메시지 또는 3d6, 1d20+3 ..." autocomplete="off" />
+              <button class="btn primary" id="chatSend" type="button">전송</button>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <div class="footer container">주사위 입력 예: 3d6 → (2 + 5 + 1) = 8</div>
+
+    <script src="./js/common.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="./js/game.js"></script>
+  </body>
+</html>
+
