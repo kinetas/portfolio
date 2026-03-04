@@ -11,6 +11,7 @@
     <div class="edit-mode-bar">
         <button id="editModeToggle" class="edit-btn">편집모드</button>
         <button id="exportPublishBtn" class="edit-btn" type="button">배포 파일 생성</button>
+        <button id="githubSyncBtn" class="edit-btn" type="button">GitHub 동기화</button>
         <span class="edit-status">편집 불가</span>
     </div>
 
@@ -233,6 +234,38 @@
             <div id="dynamicItemFields"></div>
             <button id="dynamicItemAdd" class="modal-btn">추가</button>
             <button id="dynamicItemCancel" class="modal-btn secondary">취소</button>
+        </div>
+    </div>
+
+    <!-- GitHub 동기화 모달 -->
+    <div id="githubSyncModal" class="modal hidden">
+        <div class="modal-content">
+            <h3>GitHub 동기화</h3>
+
+            <label>Owner
+                <input type="text" id="ghOwner" placeholder="예: username">
+            </label>
+            <label>Repo
+                <input type="text" id="ghRepo" placeholder="예: portfolio">
+            </label>
+            <label>Branch
+                <input type="text" id="ghBranch" placeholder="main">
+            </label>
+            <label>파일 경로
+                <input type="text" id="ghFilePath" placeholder="published_data.js">
+            </label>
+
+            <label>GitHub Token (PAT)
+                <input type="password" id="ghTokenActions" placeholder="Actions(workflow) 호출 권한 토큰">
+            </label>
+            <label>편집 비밀번호 (선택)
+                <input type="password" id="ghPasswordActions" placeholder="Actions Secret과 비교(설정 시)">
+            </label>
+            <p class="page-subtitle">주의: 데이터가 큰 경우(특히 이미지 DataURL 포함) Actions 입력 제한 때문에 실패할 수 있습니다.</p>
+
+            <button id="ghSyncExecute" class="modal-btn">동기화 실행</button>
+            <button id="ghSyncClose" class="modal-btn secondary">닫기</button>
+            <div id="ghSyncStatus" class="github-status" aria-live="polite"></div>
         </div>
     </div>
 

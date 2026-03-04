@@ -8,6 +8,7 @@ let lastRightClick = { x: 0, y: 0, pageId: null, canvas: null };
 const STORAGE_KEY = 'portfolio_canvas_data';
 const GRID_SNAP = 8; // 배치 보정용 그리드 간격 (px)
 const PUBLISHED_DATA_GLOBAL = '__PUBLISHED_PORTFOLIO_DATA__';
+const PUBLISH_SETTINGS_KEY = 'portfolio_publish_settings_v1';
 
 function isEditSession() {
     try {
@@ -47,6 +48,7 @@ const dynamicItemConfig = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+    document.body.classList.toggle('edit-session', isEditSession());
     initNavigation();
     initEditMode();
     initToolbox();
@@ -639,6 +641,14 @@ function initModals() {
         if (!isEditSession()) return;
         exportPublishedDataJs();
     });
+
+    // GitHub 동기화 모달
+    document.getElementById('githubSyncBtn')?.addEventListener('click', () => {
+        if (!isEditSession()) return;
+        openGithubSyncModal();
+    });
+    document.getElementById('ghSyncClose')?.addEventListener('click', () => closeGithubSyncModal());
+    document.getElementById('ghSyncExecute')?.addEventListener('click', () => executeGithubSync());
 }
 
 function downloadText(filename, text) {
@@ -657,6 +667,159 @@ function exportPublishedDataJs() {
     const data = collectAllData();
     const js = `// AUTO-GENERATED: 배포용 고정 데이터\nwindow.${PUBLISHED_DATA_GLOBAL} = ${JSON.stringify(data)};\n`;
     downloadText('published_data.js', js);
+}
+
+function buildPublishedDataJsText() {
+    const data = collectAllData();
+    return `// AUTO-GENERATED: 배포용 고정 데이터\nwindow.${PUBLISHED_DATA_GLOBAL} = ${JSON.stringify(data)};\n`;
+}
+
+function readPublishSettings() {
+    try {
+        const raw = localStorage.getItem(PUBLISH_SETTINGS_KEY);
+        if (!raw) return null;
+        return JSON.parse(raw);
+    } catch {
+        return null;
+    }
+}
+
+function writePublishSettings(settings) {
+    try {
+        localStorage.setItem(PUBLISH_SETTINGS_KEY, JSON.stringify(settings || {}));
+    } catch {
+        // ignore
+    }
+}
+
+function setGithubSyncStatus(message, tone = 'info') {
+    const el = document.getElementById('ghSyncStatus');
+    if (!el) return;
+    el.textContent = message || '';
+    el.dataset.tone = tone;
+}
+
+function openGithubSyncModal() {
+    const modal = document.getElementById('githubSyncModal');
+    if (!modal) return;
+
+    const saved = readPublishSettings() || {};
+
+    const ownerEl = document.getElementById('ghOwner');
+    const repoEl = document.getElementById('ghRepo');
+    const branchEl = document.getElementById('ghBranch');
+    const pathEl = document.getElementById('ghFilePath');
+
+    if (ownerEl) ownerEl.value = saved.owner || '';
+    if (repoEl) repoEl.value = saved.repo || '';
+    if (branchEl) branchEl.value = saved.branch || 'main';
+    if (pathEl) pathEl.value = saved.filePath || 'published_data.js';
+
+    setGithubSyncStatus('', 'muted');
+    modal.classList.remove('hidden');
+}
+
+function closeGithubSyncModal() {
+    document.getElementById('githubSyncModal')?.classList.add('hidden');
+}
+
+function encodePathSegments(path) {
+    return String(path || '')
+        .split('/')
+        .filter(Boolean)
+        .map(s => encodeURIComponent(s))
+        .join('/');
+}
+
+function toBase64Utf8(text) {
+    const bytes = new TextEncoder().encode(String(text || ''));
+    let binary = '';
+    const chunk = 0x8000;
+    for (let i = 0; i < bytes.length; i += chunk) {
+        binary += String.fromCharCode(...bytes.slice(i, i + chunk));
+    }
+    return btoa(binary);
+}
+
+async function fetchGithubApiJson(url, { token, method = 'GET', body } = {}) {
+    const headers = {
+        'Accept': 'application/vnd.github+json'
+    };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const res = await fetch(url, {
+        method,
+        headers,
+        body: body ? JSON.stringify(body) : undefined
+    });
+
+    if (!res.ok) {
+        let detail = '';
+        try {
+            const j = await res.json();
+            detail = j?.message ? ` · ${j.message}` : '';
+        } catch {
+            // ignore
+        }
+        throw new Error(`GitHub API 요청 실패 (${res.status})${detail}`);
+    }
+
+    if (res.status === 204) return null;
+    return await res.json();
+}
+
+async function githubDispatchPublishWorkflow({ owner, repo, branch, filePath, token, contentText, password, message }) {
+    const workflowFile = 'portfolio_publish.yml';
+    const dispatchUrl = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/actions/workflows/${encodeURIComponent(workflowFile)}/dispatches`;
+
+    const contentB64 = toBase64Utf8(contentText);
+    // workflow_dispatch inputs는 길이 제한이 있어 큰 데이터(특히 이미지 DataURL)는 실패할 수 있음
+    if (contentB64.length > 8000) {
+        throw new Error('데이터가 커서 GitHub Actions 방식으로는 전송이 어렵습니다. (이미지 DataURL을 줄이거나, 배포 파일 생성 후 수동 커밋을 권장)');
+    }
+
+    await fetchGithubApiJson(dispatchUrl, {
+        token,
+        method: 'POST',
+        body: {
+            ref: branch,
+            inputs: {
+                file_path: String(filePath || 'published_data.js'),
+                content_b64: contentB64,
+                commit_message: String(message || `Update ${filePath || 'published_data.js'}`),
+                password: String(password || '')
+            }
+        }
+    });
+}
+
+async function executeGithubSync() {
+    const owner = (document.getElementById('ghOwner')?.value || '').trim();
+    const repo = (document.getElementById('ghRepo')?.value || '').trim();
+    const branch = (document.getElementById('ghBranch')?.value || 'main').trim() || 'main';
+    const filePath = (document.getElementById('ghFilePath')?.value || 'published_data.js').trim() || 'published_data.js';
+    const tokenActions = (document.getElementById('ghTokenActions')?.value || '').trim();
+    const passwordActions = (document.getElementById('ghPasswordActions')?.value || '').trim();
+
+    if (!owner || !repo) {
+        setGithubSyncStatus('owner/repo를 입력해주세요.', 'error');
+        return;
+    }
+
+    writePublishSettings({ owner, repo, branch, filePath });
+
+    const contentText = buildPublishedDataJsText();
+    const message = `Sync published_data.js @ ${new Date().toISOString()}`;
+
+    setGithubSyncStatus('동기화 중...', 'info');
+
+    try {
+        if (!tokenActions) throw new Error('Actions 방식은 workflow 호출 권한 토큰이 필요합니다.');
+        await githubDispatchPublishWorkflow({ owner, repo, branch, filePath, token: tokenActions, contentText, password: passwordActions, message });
+        setGithubSyncStatus('요청 완료: GitHub Actions가 커밋을 수행 중입니다. (Actions 탭에서 진행 상황 확인)', 'success');
+    } catch (e) {
+        setGithubSyncStatus(e?.message || '동기화 실패', 'error');
+    }
 }
 
 function readFileAsDataURL(file) {

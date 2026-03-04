@@ -5,8 +5,10 @@
     box-sizing: border-box;
 }
 
+.hidden { display: none !important; }
+
 :root {
-    --editbar-h: 40px;
+    --editbar-h: 0px;
     --nav-h: 64px;
     --header-h: calc(var(--editbar-h) + var(--nav-h));
 
@@ -34,6 +36,10 @@ body {
     color: var(--text);
     min-height: 100vh;
     overflow-x: hidden;
+}
+
+body.edit-session {
+    --editbar-h: 40px;
 }
 
 /* 데이터 그리드 배경 패턴 */
@@ -64,13 +70,17 @@ html {
     height: var(--editbar-h);
     background: var(--edit-bar);
     color: var(--text);
-    display: flex;
+    display: none;
     align-items: center;
     padding: 0 20px;
     gap: 12px;
     z-index: 1000;
     border-bottom: 1px solid var(--border);
     backdrop-filter: blur(10px);
+}
+
+body.edit-session .edit-mode-bar {
+    display: flex;
 }
 
 .edit-btn {
