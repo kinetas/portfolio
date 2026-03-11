@@ -684,7 +684,7 @@ body.mobile-nav-open .mobile-nav-drawer {
 }
 
 .dynamic-area.edit-zone::after {
-    content: '우클릭하여 콘텐츠 추가 · 드래그로 이동';
+    content: '우클릭하여 콘텐츠 추가 · 드래그로 이동 · Shift+드래그 시 행/열 정렬';
     position: absolute;
     bottom: 12px;
     right: 40px;
@@ -818,6 +818,77 @@ body.mobile-nav-open .mobile-nav-drawer {
 
 .dynamic-item:hover .item-delete { opacity: 1; }
 .dynamic-item .item-delete:hover { color: #f87171; }
+
+/* skills 아이템 색상 변형 (자격증/프로그램) */
+.dynamic-item.skill-cyan { background: rgba(34, 211, 238, 0.18); border-left-color: #06b6d4; }
+.dynamic-item.skill-teal { background: rgba(45, 212, 191, 0.18); border-left-color: #14b8a6; }
+.dynamic-item.skill-violet { background: rgba(139, 92, 246, 0.18); border-left-color: #8b5cf6; }
+.dynamic-item.skill-amber { background: rgba(251, 191, 36, 0.22); border-left-color: #f59e0b; }
+.dynamic-item.skill-rose { background: rgba(251, 113, 133, 0.18); border-left-color: #f43f5e; }
+.dynamic-item.skill-emerald { background: rgba(52, 211, 153, 0.18); border-left-color: #10b981; }
+.dynamic-item.skill-blue { background: rgba(96, 165, 250, 0.18); border-left-color: #3b82f6; }
+.dynamic-item.skill-slate { background: rgba(100, 116, 139, 0.2); border-left-color: #64748b; }
+
+/* 동적 항목 모달 - 색상 선택 */
+.dynamic-item-color-picker {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 14px 0;
+}
+.dynamic-item-color-picker .color-picker-label {
+    font-size: 14px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+.color-swatches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.color-swatch {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.15s, border-color 0.15s;
+}
+.color-swatch:hover { transform: scale(1.1); }
+.color-swatch.selected { border-color: var(--text); box-shadow: 0 0 0 1px var(--border); }
+.color-swatch.skill-cyan { background: rgba(34, 211, 238, 0.5); }
+.color-swatch.skill-teal { background: rgba(45, 212, 191, 0.5); }
+.color-swatch.skill-violet { background: rgba(139, 92, 246, 0.5); }
+.color-swatch.skill-amber { background: rgba(251, 191, 36, 0.6); }
+.color-swatch.skill-rose { background: rgba(251, 113, 133, 0.5); }
+.color-swatch.skill-emerald { background: rgba(52, 211, 153, 0.5); }
+.color-swatch.skill-blue { background: rgba(96, 165, 250, 0.5); }
+.color-swatch.skill-slate { background: rgba(100, 116, 139, 0.4); }
+
+/* 색상 변경 팝오버 (더블클릭) */
+.skill-color-popover {
+    position: fixed;
+    z-index: 2100;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.skill-color-popover .popover-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+.skill-color-popover .color-swatches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
 
 /* ===== 구역 제목 (섹션 라벨) ===== */
 .section-label {

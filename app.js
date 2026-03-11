@@ -11,6 +11,9 @@ const PUBLISHED_DATA_GLOBAL = '__PUBLISHED_PORTFOLIO_DATA__';
 const MOBILE_BREAKPOINT_PX = 640;
 let desktopBoundsFixRaf = 0;
 const COLLISION_GAP_PX = 5;
+// 캔버스 안쪽 여백(아이템이 가장자리에 너무 붙지 않게)
+const CANVAS_SAFE_PAD_X = 16;
+const CANVAS_SAFE_PAD_Y = 16;
 
 function isMobileViewport() {
     return window.matchMedia && window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT_PX}px)`).matches;
@@ -49,11 +52,11 @@ function getElementDesiredRect(el, canvasWidth) {
     if (!Number.isFinite(left)) left = 0;
     if (!Number.isFinite(top)) top = 0;
 
-    left = Math.max(0, left);
-    top = Math.max(0, top);
+    left = Math.max(CANVAS_SAFE_PAD_X, left);
+    top = Math.max(CANVAS_SAFE_PAD_Y, top);
 
-    const maxLeft = Math.max(0, canvasWidth - w);
-    left = clampNumber(left, 0, maxLeft);
+    const maxLeft = Math.max(CANVAS_SAFE_PAD_X, canvasWidth - w - CANVAS_SAFE_PAD_X);
+    left = clampNumber(left, CANVAS_SAFE_PAD_X, maxLeft);
 
     // snap 유지(드래그/생성은 이미 스냅하지만 리사이즈 보정 시에도 정돈)
     left = snapToGrid(left);
@@ -71,20 +74,20 @@ function getElementDesiredRect(el, canvasWidth) {
 
 function findNearestFreeSpot({ baseLeft, baseTop, w, h, canvasWidth, placedRects }) {
     const step = GRID_SNAP;
-    const maxLeft = Math.max(0, canvasWidth - w);
+    const maxLeft = Math.max(CANVAS_SAFE_PAD_X, canvasWidth - w - CANVAS_SAFE_PAD_X);
 
     const maxBottom = placedRects.reduce((m, r) => Math.max(m, r.bottom), 0);
     const searchMaxTop = Math.max(baseTop + 1200, maxBottom + 1200, 1600);
 
     const ok = (left, top) => {
-        if (left < 0 || left > maxLeft) return false;
-        if (top < 0 || top > searchMaxTop) return false;
+        if (left < CANVAS_SAFE_PAD_X || left > maxLeft) return false;
+        if (top < CANVAS_SAFE_PAD_Y || top > searchMaxTop) return false;
         const r = { left, top, right: left + w, bottom: top + h };
         return !placedRects.some(p => rectsIntersect(r, p, COLLISION_GAP_PX));
     };
 
-    const startL = clampNumber(snapToGrid(baseLeft), 0, maxLeft);
-    const startT = Math.max(0, snapToGrid(baseTop));
+    const startL = clampNumber(snapToGrid(baseLeft), CANVAS_SAFE_PAD_X, maxLeft);
+    const startT = Math.max(CANVAS_SAFE_PAD_Y, snapToGrid(baseTop));
     if (ok(startL, startT)) return { left: startL, top: startT };
 
     // 주변 빈공간 탐색: 사각 링을 확장하면서 가장 가까운 후보를 찾음
@@ -97,21 +100,21 @@ function findNearestFreeSpot({ baseLeft, baseTop, w, h, canvasWidth, placedRects
             const x = startL + dx * step;
             const yt = startT - d;
             const yb = startT + d;
-            if (ok(x, yt)) return { left: clampNumber(x, 0, maxLeft), top: Math.max(0, yt) };
-            if (ok(x, yb)) return { left: clampNumber(x, 0, maxLeft), top: Math.max(0, yb) };
+            if (ok(x, yt)) return { left: clampNumber(x, CANVAS_SAFE_PAD_X, maxLeft), top: Math.max(CANVAS_SAFE_PAD_Y, yt) };
+            if (ok(x, yb)) return { left: clampNumber(x, CANVAS_SAFE_PAD_X, maxLeft), top: Math.max(CANVAS_SAFE_PAD_Y, yb) };
         }
         // 좌/우 변
         for (let dy = -r + 1; dy <= r - 1; dy++) {
             const y = startT + dy * step;
             const xl = startL - d;
             const xr = startL + d;
-            if (ok(xl, y)) return { left: clampNumber(xl, 0, maxLeft), top: Math.max(0, y) };
-            if (ok(xr, y)) return { left: clampNumber(xr, 0, maxLeft), top: Math.max(0, y) };
+            if (ok(xl, y)) return { left: clampNumber(xl, CANVAS_SAFE_PAD_X, maxLeft), top: Math.max(CANVAS_SAFE_PAD_Y, y) };
+            if (ok(xr, y)) return { left: clampNumber(xr, CANVAS_SAFE_PAD_X, maxLeft), top: Math.max(CANVAS_SAFE_PAD_Y, y) };
         }
     }
 
     // 그래도 못 찾으면 맨 아래로 내리기(겹침 방지 최후 수단)
-    return { left: startL, top: snapToGrid(maxBottom + COLLISION_GAP_PX) };
+    return { left: startL, top: Math.max(CANVAS_SAFE_PAD_Y, snapToGrid(maxBottom + COLLISION_GAP_PX)) };
 }
 
 function layoutCanvasNoOverlap(canvas) {
@@ -155,6 +158,55 @@ function layoutCanvasNoOverlap(canvas) {
     ensureCanvasHeight(canvas);
 }
 
+// ===== 반응형: 캔버스 폭에 맞춰 아이템을 행/열 그리드로 재배치 =====
+const FLOW_GAP = 12;
+
+function layoutCanvasFlowGrid(canvas) {
+    if (!canvas) return;
+
+    const cw = canvas.clientWidth || 0;
+    if (!cw) return;
+
+    const items = Array.from(canvas.querySelectorAll('.draggable-item'));
+    if (!items.length) return;
+
+    // 기존 위치(top→left) 순으로 정렬해 대략적인 순서 유지
+    items.sort((a, b) => {
+        const at = parseFloat(a.style.top) || 0;
+        const bt = parseFloat(b.style.top) || 0;
+        if (at !== bt) return at - bt;
+        const al = parseFloat(a.style.left) || 0;
+        const bl = parseFloat(b.style.left) || 0;
+        if (al !== bl) return al - bl;
+        return String(a.dataset.id || '').localeCompare(String(b.dataset.id || ''));
+    });
+
+    const availableWidth = Math.max(0, cw - (CANVAS_SAFE_PAD_X * 2));
+    let currentX = CANVAS_SAFE_PAD_X;
+    let currentY = CANVAS_SAFE_PAD_Y;
+    let rowHeight = 0;
+
+    items.forEach(el => {
+        const w = el.offsetWidth || 0;
+        const h = el.offsetHeight || 0;
+
+        // 현재 행에 넣으면 넘치면 다음 줄로
+        if (currentX > CANVAS_SAFE_PAD_X && (currentX - CANVAS_SAFE_PAD_X) + w > availableWidth) {
+            currentX = CANVAS_SAFE_PAD_X;
+            currentY += rowHeight + FLOW_GAP;
+            rowHeight = 0;
+        }
+
+        el.style.left = `${currentX}px`;
+        el.style.top = `${currentY}px`;
+
+        currentX += w + FLOW_GAP;
+        rowHeight = Math.max(rowHeight, h);
+    });
+
+    ensureCanvasHeight(canvas);
+}
+
 function moveElementToNearestFreeSpot(canvas, el) {
     if (!canvas || !el) return;
     const cw = canvas.clientWidth || 0;
@@ -183,7 +235,8 @@ function scheduleDesktopBoundsFix() {
     desktopBoundsFixRaf = requestAnimationFrame(() => {
         desktopBoundsFixRaf = 0;
         if (isMobileViewport()) return;
-        document.querySelectorAll('.canvas-area').forEach(layoutCanvasNoOverlap);
+        // 반응형: 캔버스 폭에 맞춰 아이템을 행/열 그리드로 재배치
+        document.querySelectorAll('.canvas-area').forEach(layoutCanvasFlowGrid);
     });
 }
 
@@ -240,6 +293,18 @@ const GITHUB_SETTINGS_KEY = 'portfolio_github_settings_v1';
 const GITHUB_CACHE_KEY = 'portfolio_github_cache_v1';
 const GITHUB_CACHE_TTL_MS = 10 * 60 * 1000;
 const GITHUB_DEFAULT_USERNAME = 'kinetas';
+
+// skills 아이템(자격증/프로그램) 색상 옵션
+const SKILL_ITEM_COLORS = [
+    { id: 'cyan', label: '시안', class: 'skill-cyan' },
+    { id: 'teal', label: '틸', class: 'skill-teal' },
+    { id: 'violet', label: '바이올렛', class: 'skill-violet' },
+    { id: 'amber', label: '앰버', class: 'skill-amber' },
+    { id: 'rose', label: '로즈', class: 'skill-rose' },
+    { id: 'emerald', label: '에메랄드', class: 'skill-emerald' },
+    { id: 'blue', label: '블루', class: 'skill-blue' },
+    { id: 'slate', label: '슬레이트', class: 'skill-slate' }
+];
 
 const dynamicItemConfig = {
     paper: { title: '논문 추가', fields: [
@@ -539,9 +604,41 @@ function getCanvasPosition(canvas, clientX, clientY) {
     const left = clientX - rect.left + (canvas.scrollLeft || 0);
     const top = clientY - rect.top + (canvas.scrollTop || 0);
     return {
-        left: Math.max(0, snapToGrid(left)),
-        top: Math.max(0, snapToGrid(top))
+        left: Math.max(CANVAS_SAFE_PAD_X, snapToGrid(left)),
+        top: Math.max(CANVAS_SAFE_PAD_Y, snapToGrid(top))
     };
+}
+
+// ===== Shift+드래그: 같은 행/열 아이템에 정렬 보정 =====
+const ALIGN_THRESHOLD_PX = 40; // 이 거리 이내의 행/열에 스냅
+
+function alignItemToSiblings(canvas, el, preferRow = true, preferCol = true) {
+    const others = Array.from(canvas.querySelectorAll('.draggable-item')).filter(x => x !== el);
+    if (!others.length) return;
+
+    const tops = [...new Set(others.map(o => snapToGrid(parseFloat(o.style.top) || 0)))];
+    const lefts = [...new Set(others.map(o => snapToGrid(parseFloat(o.style.left) || 0)))];
+
+    let left = parseFloat(el.style.left) || 0;
+    let top = parseFloat(el.style.top) || 0;
+
+    if (preferCol && lefts.length) {
+        const nearest = lefts.reduce((a, b) => Math.abs(a - left) <= Math.abs(b - left) ? a : b);
+        if (Math.abs(nearest - left) <= ALIGN_THRESHOLD_PX) left = nearest;
+    }
+    if (preferRow && tops.length) {
+        const nearest = tops.reduce((a, b) => Math.abs(a - top) <= Math.abs(b - top) ? a : b);
+        if (Math.abs(nearest - top) <= ALIGN_THRESHOLD_PX) top = nearest;
+    }
+
+    const cw = canvas.clientWidth || 0;
+    const elW = el.offsetWidth || 0;
+    const maxLeft = Math.max(CANVAS_SAFE_PAD_X, cw - elW - CANVAS_SAFE_PAD_X);
+    left = clampNumber(snapToGrid(left), CANVAS_SAFE_PAD_X, maxLeft);
+    top = Math.max(CANVAS_SAFE_PAD_Y, snapToGrid(top));
+
+    el.style.left = `${left}px`;
+    el.style.top = `${top}px`;
 }
 
 // ===== 드래그 =====
@@ -563,6 +660,7 @@ function initDrag() {
         const itemRect = item.getBoundingClientRect();
         const offsetX = e.clientX - itemRect.left;
         const offsetY = e.clientY - itemRect.top;
+        let shiftHeldOnUp = false;
 
         item.classList.add('dragging');
 
@@ -574,12 +672,19 @@ function initDrag() {
             item.style.top = `${Math.max(0, top)}px`;
         };
 
-        const onUp = () => {
+        const onUp = (ev) => {
+            shiftHeldOnUp = ev && ev.shiftKey;
             item.classList.remove('dragging');
             document.removeEventListener('mousemove', onMove);
             document.removeEventListener('mouseup', onUp);
-            // 드래그 드랍 후에도 겹치면 주변 빈공간으로 이동
-            moveElementToNearestFreeSpot(canvas, item);
+            if (shiftHeldOnUp) {
+                alignItemToSiblings(canvas, item, true, true);
+                // 정렬 후 겹침 방지
+                moveElementToNearestFreeSpot(canvas, item);
+            } else {
+                moveElementToNearestFreeSpot(canvas, item);
+            }
+            ensureCanvasHeight(canvas);
         };
 
         document.addEventListener('mousemove', onMove);
@@ -729,6 +834,69 @@ function addImageToCanvas(src) {
     updateDeleteButtonsVisibility();
 }
 
+// ===== 자격증/프로그램 색상 변경 (더블클릭) =====
+let skillColorPopover = null;
+
+function attachSkillItemColorPicker(itemEl) {
+    if (!itemEl || (itemEl.dataset.type !== 'certification' && itemEl.dataset.type !== 'program')) return;
+    if (itemEl.dataset.colorPickerBound === '1') return;
+    itemEl.dataset.colorPickerBound = '1';
+    itemEl.title = '더블클릭: 색상 변경';
+
+    itemEl.addEventListener('dblclick', (e) => {
+        if (e.target.closest('.item-delete')) return;
+        if (!editMode) return;
+        e.preventDefault();
+        e.stopPropagation();
+        showSkillColorPopover(itemEl);
+    });
+}
+
+function showSkillColorPopover(itemEl) {
+    if (skillColorPopover) skillColorPopover.remove();
+
+    const pop = document.createElement('div');
+    pop.className = 'skill-color-popover';
+    pop.innerHTML = '<span class="popover-title">색상 선택</span>';
+    const wrap = document.createElement('div');
+    wrap.className = 'color-swatches';
+
+    SKILL_ITEM_COLORS.forEach(c => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `color-swatch ${c.class}`;
+        btn.title = c.label;
+        btn.setAttribute('aria-label', c.label);
+        if (itemEl.classList.contains(c.class)) btn.classList.add('selected');
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            SKILL_ITEM_COLORS.forEach(x => itemEl.classList.remove(x.class));
+            itemEl.classList.add(c.class);
+            pop.remove();
+            skillColorPopover = null;
+            document.removeEventListener('click', close);
+            saveAllData();
+        });
+        wrap.appendChild(btn);
+    });
+    pop.appendChild(wrap);
+    document.body.appendChild(pop);
+    skillColorPopover = pop;
+
+    const rect = itemEl.getBoundingClientRect();
+    pop.style.left = `${rect.left}px`;
+    pop.style.top = `${rect.bottom + 6}px`;
+    if (pop.getBoundingClientRect().right > window.innerWidth) pop.style.left = `${rect.right - pop.offsetWidth}px`;
+    if (pop.getBoundingClientRect().bottom > window.innerHeight) pop.style.top = `${rect.top - pop.offsetHeight - 6}px`;
+
+    const close = () => {
+        pop.remove();
+        skillColorPopover = null;
+        document.removeEventListener('click', close);
+    };
+    setTimeout(() => document.addEventListener('click', close), 0);
+}
+
 // ===== 구역 제목 (자격증/프로그램 등 구역 나누기용) =====
 function addSectionLabel() {
     if (!lastRightClick.canvas) return;
@@ -785,6 +953,31 @@ function openDynamicItemModal(type) {
         fieldsDiv.appendChild(fileLabel);
     }
 
+    // 자격증/프로그램은 색상 선택 추가
+    if (type === 'certification' || type === 'program') {
+        const colorWrap = document.createElement('div');
+        colorWrap.className = 'dynamic-item-color-picker';
+        colorWrap.innerHTML = '<span class="color-picker-label">색상:</span>';
+        const swatchWrap = document.createElement('div');
+        swatchWrap.className = 'color-swatches';
+        SKILL_ITEM_COLORS.forEach((c, i) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = `color-swatch ${c.class}`;
+            btn.dataset.colorId = c.id;
+            btn.title = c.label;
+            btn.setAttribute('aria-label', c.label);
+            if (i === 0) btn.classList.add('selected');
+            btn.addEventListener('click', () => {
+                swatchWrap.querySelectorAll('.color-swatch').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+            });
+            swatchWrap.appendChild(btn);
+        });
+        colorWrap.appendChild(swatchWrap);
+        fieldsDiv.appendChild(colorWrap);
+    }
+
     document.getElementById('dynamicItemModal').classList.remove('hidden');
 
     document.getElementById('dynamicItemAdd').onclick = async () => {
@@ -812,19 +1005,29 @@ function openDynamicItemModal(type) {
             }
         }
 
-        addDynamicItem(type, values, { imageSrc });
+        let skillColor = '';
+        if (type === 'certification' || type === 'program') {
+            const sel = fieldsDiv.querySelector('.color-swatch.selected');
+            skillColor = sel?.dataset.colorId || SKILL_ITEM_COLORS[0].id;
+        }
+        addDynamicItem(type, values, { imageSrc, skillColor });
         document.getElementById('dynamicItemModal').classList.add('hidden');
     };
 }
 
-function addDynamicItem(type, values, { imageSrc = '' } = {}) {
+function addDynamicItem(type, values, { imageSrc = '', skillColor = '' } = {}) {
     if (!lastRightClick.canvas) return;
 
     const config = dynamicItemConfig[type];
     const pos = getCanvasPosition(lastRightClick.canvas, lastRightClick.x, lastRightClick.y);
 
     const item = document.createElement('div');
-    item.className = `dynamic-item draggable-item`;
+    let colorClass = '';
+    if ((type === 'certification' || type === 'program') && skillColor) {
+        const found = SKILL_ITEM_COLORS.find(c => c.id === skillColor);
+        colorClass = found ? ' ' + found.class : '';
+    }
+    item.className = `dynamic-item draggable-item${colorClass}`;
     item.dataset.id = type + '_' + Date.now();
     item.dataset.type = type;
     item.dataset.pageId = lastRightClick.pageId;
@@ -875,6 +1078,9 @@ function addDynamicItem(type, values, { imageSrc = '' } = {}) {
         item.dataset.imageSrc = imageSrc;
         item.classList.add('project-has-image');
         attachProjectHoverPreview(item);
+    }
+    if (type === 'certification' || type === 'program') {
+        attachSkillItemColorPicker(item);
     }
     lastRightClick.canvas.appendChild(item);
     ensureCanvasHeight(lastRightClick.canvas);
@@ -1138,6 +1344,11 @@ function collectAllData() {
                     if (s) item[f.name] = s.textContent.replace(s.querySelector('strong')?.textContent || '', '').trim();
                 });
             }
+            // 자격증/프로그램 색상
+            if (el.dataset.type === 'certification' || el.dataset.type === 'program') {
+                const m = el.className.match(/skill-(cyan|teal|violet|amber|rose|emerald|blue|slate)/);
+                item.skillColor = m ? m[1] : 'cyan';
+            }
         }
         data.items.push(item);
     });
@@ -1283,7 +1494,12 @@ function restoreItem(item) {
         config.fields.forEach(f => { values[f.name] = item[f.name] || ''; });
 
         const el = document.createElement('div');
-        el.className = 'dynamic-item draggable-item';
+        let colorClass = '';
+        if ((item.type === 'certification' || item.type === 'program') && item.skillColor) {
+            const found = SKILL_ITEM_COLORS.find(c => c.id === item.skillColor);
+            colorClass = found ? ' ' + found.class : '';
+        }
+        el.className = `dynamic-item draggable-item${colorClass}`;
         el.dataset.id = item.id;
         el.dataset.type = item.type;
         el.dataset.pageId = item.pageId;
@@ -1335,6 +1551,9 @@ function restoreItem(item) {
             el.dataset.imageSrc = item.imageSrc;
             el.classList.add('project-has-image');
             attachProjectHoverPreview(el);
+        }
+        if (item.type === 'certification' || item.type === 'program') {
+            attachSkillItemColorPicker(el);
         }
         canvas.appendChild(el);
     }
