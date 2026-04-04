@@ -1121,6 +1121,8 @@ function attachProjectHoverPreview(itemEl) {
     itemEl.addEventListener('mouseenter', show);
     itemEl.addEventListener('mouseleave', hide);
     itemEl.addEventListener('mousemove', move);
+    itemEl.addEventListener('touchend', hide);
+    itemEl.addEventListener('touchcancel', hide);
 }
 
 function collectAllData() {
