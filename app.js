@@ -4,6 +4,7 @@
 
 let editMode = false;
 let lastRightClick = { x: 0, y: 0, pageId: null, canvas: null };
+let lastDragEndTime = 0;
 
 const STORAGE_KEY = 'portfolio_canvas_data';
 const GRID_SNAP = 8; // 배치 보정용 그리드 간격 (px)
@@ -294,33 +295,7 @@ const GITHUB_CACHE_KEY = 'portfolio_github_cache_v1';
 const GITHUB_CACHE_TTL_MS = 10 * 60 * 1000;
 const GITHUB_DEFAULT_USERNAME = 'kinetas';
 
-// skills 아이템(자격증/프로그램) 색상 옵션
-const SKILL_ITEM_COLORS = [
-    { id: 'cyan', label: '시안', class: 'skill-cyan' },
-    { id: 'teal', label: '틸', class: 'skill-teal' },
-    { id: 'violet', label: '바이올렛', class: 'skill-violet' },
-    { id: 'amber', label: '앰버', class: 'skill-amber' },
-    { id: 'rose', label: '로즈', class: 'skill-rose' },
-    { id: 'emerald', label: '에메랄드', class: 'skill-emerald' },
-    { id: 'blue', label: '블루', class: 'skill-blue' },
-    { id: 'slate', label: '슬레이트', class: 'skill-slate' }
-];
-
 const dynamicItemConfig = {
-    paper: { title: '논문 추가', fields: [
-        { name: 'title', label: '논문명', type: 'text' },
-        { name: 'journal', label: '학술지/학회', type: 'text' },
-        { name: 'date', label: '발표일', type: 'text' }
-    ]},
-    certification: { title: '자격증 추가', fields: [
-        { name: 'name', label: '자격증명', type: 'text' },
-        { name: 'org', label: '발급기관', type: 'text' },
-        { name: 'date', label: '취득일', type: 'text' }
-    ]},
-    program: { title: '프로그램 추가', fields: [
-        { name: 'name', label: '프로그램명', type: 'text' },
-        { name: 'level', label: '숙련도 (선택)', type: 'text' }
-    ]},
     project: { title: '프로젝트 추가', fields: [
         { name: 'name', label: '프로젝트명', type: 'text' },
         { name: 'role', label: '역할', type: 'text' },
@@ -513,7 +488,7 @@ function initEditMode() {
 // 편집모드에서만 삭제 버튼 표시
 function updateDeleteButtonsVisibility() {
     document.body.classList.toggle('edit-mode', editMode);
-    document.querySelectorAll('.box-delete, .item-delete, .table-delete, .label-delete, .image-delete').forEach(btn => {
+    document.querySelectorAll('.box-delete, .item-delete, .item-edit, .table-delete, .label-delete, .image-delete').forEach(btn => {
         btn.style.pointerEvents = editMode ? '' : 'none';
         btn.style.visibility = editMode ? '' : 'hidden';
     });
@@ -552,12 +527,6 @@ function initToolbox() {
         addBtn('표 추가', 'addTable');
         addBtn('검색', 'search');
 
-        if (lastRightClick.pageId === 'career') addBtn('논문 추가', 'addPaper');
-        if (lastRightClick.pageId === 'skills') {
-            addBtn('구역 제목 추가', 'addSectionLabel');
-            addBtn('자격증 추가', 'addCertification');
-            addBtn('프로그램 추가', 'addProgram');
-        }
         if (lastRightClick.pageId === 'portfolio') addBtn('프로젝트 추가', 'addProject');
 
         showToolbox(e.clientX, e.clientY);
@@ -586,10 +555,6 @@ function handleToolAction(action) {
         case 'addImage': openImageModal(); break;
         case 'addTable': openTableModal(); break;
         case 'search': openSearchModal(); break;
-        case 'addSectionLabel': addSectionLabel(); break;
-        case 'addPaper': openDynamicItemModal('paper'); break;
-        case 'addCertification': openDynamicItemModal('certification'); break;
-        case 'addProgram': openDynamicItemModal('program'); break;
         case 'addProject': openDynamicItemModal('project'); break;
     }
 }
@@ -675,6 +640,7 @@ function initDrag() {
         const onUp = (ev) => {
             shiftHeldOnUp = ev && ev.shiftKey;
             item.classList.remove('dragging');
+            lastDragEndTime = Date.now();
             document.removeEventListener('mousemove', onMove);
             document.removeEventListener('mouseup', onUp);
             if (shiftHeldOnUp) {
@@ -834,98 +800,6 @@ function addImageToCanvas(src) {
     updateDeleteButtonsVisibility();
 }
 
-// ===== 자격증/프로그램 색상 변경 (더블클릭) =====
-let skillColorPopover = null;
-
-function attachSkillItemColorPicker(itemEl) {
-    if (!itemEl || (itemEl.dataset.type !== 'certification' && itemEl.dataset.type !== 'program')) return;
-    if (itemEl.dataset.colorPickerBound === '1') return;
-    itemEl.dataset.colorPickerBound = '1';
-    itemEl.title = '더블클릭: 색상 변경';
-
-    itemEl.addEventListener('dblclick', (e) => {
-        if (e.target.closest('.item-delete')) return;
-        if (!editMode) return;
-        e.preventDefault();
-        e.stopPropagation();
-        showSkillColorPopover(itemEl);
-    });
-}
-
-function showSkillColorPopover(itemEl) {
-    if (skillColorPopover) skillColorPopover.remove();
-
-    const pop = document.createElement('div');
-    pop.className = 'skill-color-popover';
-    pop.innerHTML = '<span class="popover-title">색상 선택</span>';
-    const wrap = document.createElement('div');
-    wrap.className = 'color-swatches';
-
-    SKILL_ITEM_COLORS.forEach(c => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = `color-swatch ${c.class}`;
-        btn.title = c.label;
-        btn.setAttribute('aria-label', c.label);
-        if (itemEl.classList.contains(c.class)) btn.classList.add('selected');
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            SKILL_ITEM_COLORS.forEach(x => itemEl.classList.remove(x.class));
-            itemEl.classList.add(c.class);
-            pop.remove();
-            skillColorPopover = null;
-            document.removeEventListener('click', close);
-            saveAllData();
-        });
-        wrap.appendChild(btn);
-    });
-    pop.appendChild(wrap);
-    document.body.appendChild(pop);
-    skillColorPopover = pop;
-
-    const rect = itemEl.getBoundingClientRect();
-    pop.style.left = `${rect.left}px`;
-    pop.style.top = `${rect.bottom + 6}px`;
-    if (pop.getBoundingClientRect().right > window.innerWidth) pop.style.left = `${rect.right - pop.offsetWidth}px`;
-    if (pop.getBoundingClientRect().bottom > window.innerHeight) pop.style.top = `${rect.top - pop.offsetHeight - 6}px`;
-
-    const close = () => {
-        pop.remove();
-        skillColorPopover = null;
-        document.removeEventListener('click', close);
-    };
-    setTimeout(() => document.addEventListener('click', close), 0);
-}
-
-// ===== 구역 제목 (자격증/프로그램 등 구역 나누기용) =====
-function addSectionLabel() {
-    if (!lastRightClick.canvas) return;
-
-    const label = prompt('구역 제목 (예: 자격증, 다룰 수 있는 프로그램)', '자격증');
-    if (!label || !label.trim()) return;
-
-    const pos = getCanvasPosition(lastRightClick.canvas, lastRightClick.x, lastRightClick.y);
-
-    const el = document.createElement('div');
-    el.className = 'section-label draggable-item';
-    el.dataset.id = 'section_' + Date.now();
-    el.dataset.type = 'sectionLabel';
-    el.dataset.pageId = lastRightClick.pageId;
-    el.style.left = pos.left + 'px';
-    el.style.top = pos.top + 'px';
-    el.innerHTML = `<span class="label-text">${escapeHtml(label.trim())}</span><button class="label-delete" aria-label="삭제">×</button>`;
-
-    el.querySelector('.label-delete')?.addEventListener('click', (e) => { e.stopPropagation(); el.remove(); });
-    el.addEventListener('dblclick', (e) => {
-        if (e.target.closest('.label-delete')) return;
-        const newLabel = prompt('구역 제목 수정', el.textContent);
-        if (newLabel && newLabel.trim()) el.textContent = newLabel.trim();
-    });
-
-    lastRightClick.canvas.appendChild(el);
-    ensureCanvasHeight(lastRightClick.canvas);
-    updateDeleteButtonsVisibility();
-}
 
 // ===== 동적 항목 (논문/자격증/프로그램/프로젝트) =====
 function openDynamicItemModal(type) {
@@ -933,6 +807,7 @@ function openDynamicItemModal(type) {
     if (!config) return;
 
     document.getElementById('dynamicItemTitle').textContent = config.title;
+    document.getElementById('dynamicItemAdd').textContent = '추가';
     const fieldsDiv = document.getElementById('dynamicItemFields');
     fieldsDiv.innerHTML = '';
 
@@ -942,7 +817,7 @@ function openDynamicItemModal(type) {
         fieldsDiv.appendChild(label);
     });
 
-    // 프로젝트는 이미지(URL/파일)를 추가로 받을 수 있게 확장
+    // 프로젝트는 이미지(URL/파일) + 링크를 추가로 받을 수 있게 확장
     if (type === 'project') {
         const imageLabel = document.createElement('label');
         imageLabel.innerHTML = `이미지 URL (선택): <input type="text" data-field="__projectImageUrl" placeholder="https://...">`;
@@ -951,31 +826,10 @@ function openDynamicItemModal(type) {
         const fileLabel = document.createElement('label');
         fileLabel.innerHTML = `이미지 파일 (선택): <input type="file" accept="image/*" data-field="__projectImageFile">`;
         fieldsDiv.appendChild(fileLabel);
-    }
 
-    // 자격증/프로그램은 색상 선택 추가
-    if (type === 'certification' || type === 'program') {
-        const colorWrap = document.createElement('div');
-        colorWrap.className = 'dynamic-item-color-picker';
-        colorWrap.innerHTML = '<span class="color-picker-label">색상:</span>';
-        const swatchWrap = document.createElement('div');
-        swatchWrap.className = 'color-swatches';
-        SKILL_ITEM_COLORS.forEach((c, i) => {
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = `color-swatch ${c.class}`;
-            btn.dataset.colorId = c.id;
-            btn.title = c.label;
-            btn.setAttribute('aria-label', c.label);
-            if (i === 0) btn.classList.add('selected');
-            btn.addEventListener('click', () => {
-                swatchWrap.querySelectorAll('.color-swatch').forEach(b => b.classList.remove('selected'));
-                btn.classList.add('selected');
-            });
-            swatchWrap.appendChild(btn);
-        });
-        colorWrap.appendChild(swatchWrap);
-        fieldsDiv.appendChild(colorWrap);
+        const linkLabel = document.createElement('label');
+        linkLabel.innerHTML = `링크 URL (선택): <input type="text" data-field="__projectLink" placeholder="https://...">`;
+        fieldsDiv.appendChild(linkLabel);
     }
 
     document.getElementById('dynamicItemModal').classList.remove('hidden');
@@ -988,11 +842,14 @@ function openDynamicItemModal(type) {
         });
 
         let imageSrc = '';
+        let projectLink = '';
         if (type === 'project') {
             const urlInput = fieldsDiv.querySelector(`[data-field="__projectImageUrl"]`);
             const fileInput = fieldsDiv.querySelector(`[data-field="__projectImageFile"]`);
+            const linkInput = fieldsDiv.querySelector(`[data-field="__projectLink"]`);
             const url = urlInput?.value?.trim() || '';
             const file = fileInput?.files?.[0] || null;
+            projectLink = linkInput?.value?.trim() || '';
 
             if (file) {
                 try {
@@ -1005,29 +862,19 @@ function openDynamicItemModal(type) {
             }
         }
 
-        let skillColor = '';
-        if (type === 'certification' || type === 'program') {
-            const sel = fieldsDiv.querySelector('.color-swatch.selected');
-            skillColor = sel?.dataset.colorId || SKILL_ITEM_COLORS[0].id;
-        }
-        addDynamicItem(type, values, { imageSrc, skillColor });
+        addDynamicItem(type, values, { imageSrc, projectLink });
         document.getElementById('dynamicItemModal').classList.add('hidden');
     };
 }
 
-function addDynamicItem(type, values, { imageSrc = '', skillColor = '' } = {}) {
+function addDynamicItem(type, values, { imageSrc = '', projectLink = '' } = {}) {
     if (!lastRightClick.canvas) return;
 
     const config = dynamicItemConfig[type];
     const pos = getCanvasPosition(lastRightClick.canvas, lastRightClick.x, lastRightClick.y);
 
     const item = document.createElement('div');
-    let colorClass = '';
-    if ((type === 'certification' || type === 'program') && skillColor) {
-        const found = SKILL_ITEM_COLORS.find(c => c.id === skillColor);
-        colorClass = found ? ' ' + found.class : '';
-    }
-    item.className = `dynamic-item draggable-item${colorClass}`;
+    item.className = 'dynamic-item draggable-item';
     item.dataset.id = type + '_' + Date.now();
     item.dataset.type = type;
     item.dataset.pageId = lastRightClick.pageId;
@@ -1079,8 +926,13 @@ function addDynamicItem(type, values, { imageSrc = '', skillColor = '' } = {}) {
         item.classList.add('project-has-image');
         attachProjectHoverPreview(item);
     }
-    if (type === 'certification' || type === 'program') {
-        attachSkillItemColorPicker(item);
+    if (type === 'project') {
+        if (projectLink) {
+            item.dataset.projectLink = projectLink;
+            item.classList.add('project-has-link');
+        }
+        attachProjectEditBtn(item);
+        attachProjectLinkClick(item);
     }
     lastRightClick.canvas.appendChild(item);
     ensureCanvasHeight(lastRightClick.canvas);
@@ -1302,8 +1154,6 @@ function collectAllData() {
                 });
                 item.rows = rows;
             }
-        } else if (el.dataset.type === 'sectionLabel') {
-            item.label = el.querySelector('.label-text')?.textContent || el.textContent || '';
         } else if (el.dataset.type === 'image') {
             const img = el.querySelector('img');
             item.src = img?.src || '';
@@ -1326,6 +1176,7 @@ function collectAllData() {
                 });
             }
             item.imageSrc = el.dataset.imageSrc || '';
+            item.link = el.dataset.projectLink || '';
         } else {
             const config = dynamicItemConfig[el.dataset.type];
             if (config) {
@@ -1343,11 +1194,6 @@ function collectAllData() {
                     const s = Array.from(spans).find(x => x.textContent.includes(f.label));
                     if (s) item[f.name] = s.textContent.replace(s.querySelector('strong')?.textContent || '', '').trim();
                 });
-            }
-            // 자격증/프로그램 색상
-            if (el.dataset.type === 'certification' || el.dataset.type === 'program') {
-                const m = el.className.match(/skill-(cyan|teal|violet|amber|rose|emerald|blue|slate)/);
-                item.skillColor = m ? m[1] : 'cyan';
             }
         }
         data.items.push(item);
@@ -1444,23 +1290,6 @@ function restoreItem(item) {
         wrapper.innerHTML = tableHtml;
         wrapper.querySelector('.table-delete')?.addEventListener('click', () => wrapper.remove());
         canvas.appendChild(wrapper);
-    } else if (item.type === 'sectionLabel') {
-        const el = document.createElement('div');
-        el.className = 'section-label draggable-item';
-        el.dataset.id = item.id;
-        el.dataset.type = 'sectionLabel';
-        el.dataset.pageId = item.pageId;
-        el.style.left = (item.left || 0) + 'px';
-        el.style.top = (item.top || 0) + 'px';
-        el.innerHTML = `<span class="label-text">${escapeHtml(item.label || '구역')}</span><button class="label-delete" aria-label="삭제">×</button>`;
-        el.querySelector('.label-delete')?.addEventListener('click', (e) => { e.stopPropagation(); el.remove(); });
-        el.addEventListener('dblclick', (e) => {
-            if (e.target.closest('.label-delete')) return;
-            const txt = el.querySelector('.label-text');
-            const newLabel = prompt('구역 제목 수정', txt?.textContent || '');
-            if (newLabel && newLabel.trim()) { if (txt) txt.textContent = newLabel.trim(); }
-        });
-        canvas.appendChild(el);
     } else if (item.type === 'image') {
         const wrapper = document.createElement('div');
         wrapper.className = 'image-item draggable-item';
@@ -1494,12 +1323,7 @@ function restoreItem(item) {
         config.fields.forEach(f => { values[f.name] = item[f.name] || ''; });
 
         const el = document.createElement('div');
-        let colorClass = '';
-        if ((item.type === 'certification' || item.type === 'program') && item.skillColor) {
-            const found = SKILL_ITEM_COLORS.find(c => c.id === item.skillColor);
-            colorClass = found ? ' ' + found.class : '';
-        }
-        el.className = `dynamic-item draggable-item${colorClass}`;
+        el.className = 'dynamic-item draggable-item';
         el.dataset.id = item.id;
         el.dataset.type = item.type;
         el.dataset.pageId = item.pageId;
@@ -1552,10 +1376,166 @@ function restoreItem(item) {
             el.classList.add('project-has-image');
             attachProjectHoverPreview(el);
         }
-        if (item.type === 'certification' || item.type === 'program') {
-            attachSkillItemColorPicker(el);
+        if (item.type === 'project') {
+            if (item.link) {
+                el.dataset.projectLink = item.link;
+                el.classList.add('project-has-link');
+            }
+            attachProjectEditBtn(el);
+            attachProjectLinkClick(el);
         }
         canvas.appendChild(el);
+    }
+}
+
+// ===== 프로젝트 아이템 — 수정 / 링크 클릭 =====
+function attachProjectEditBtn(itemEl) {
+    if (itemEl.dataset.editBtnBound === '1') return;
+    itemEl.dataset.editBtnBound = '1';
+
+    const btn = document.createElement('button');
+    btn.className = 'item-edit';
+    btn.setAttribute('aria-label', '수정');
+    btn.textContent = '✎';
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (!editMode) return;
+        openProjectEditModal(itemEl);
+    });
+    itemEl.appendChild(btn);
+}
+
+function attachProjectLinkClick(itemEl) {
+    if (itemEl.dataset.linkClickBound === '1') return;
+    itemEl.dataset.linkClickBound = '1';
+
+    itemEl.addEventListener('click', (e) => {
+        if (editMode) return;
+        if (e.target.closest('.item-delete, .item-edit')) return;
+        if (Date.now() - lastDragEndTime < 200) return;
+        const link = itemEl.dataset.projectLink;
+        if (link) window.open(link, '_blank', 'noreferrer');
+    });
+}
+
+function openProjectEditModal(itemEl) {
+    const config = dynamicItemConfig['project'];
+
+    document.getElementById('dynamicItemTitle').textContent = '프로젝트 수정';
+    const addBtn = document.getElementById('dynamicItemAdd');
+    addBtn.textContent = '수정';
+    const fieldsDiv = document.getElementById('dynamicItemFields');
+    fieldsDiv.innerHTML = '';
+
+    config.fields.forEach(f => {
+        const fieldEl = itemEl.querySelector(`.item-field[data-field="${CSS.escape(f.name)}"]`);
+        const prefix = `${f.label}:`;
+        const raw = (fieldEl?.textContent || '').trim();
+        const currentVal = raw.startsWith(prefix) ? raw.slice(prefix.length).trim() : raw.replace(prefix, '').trim();
+        const label = document.createElement('label');
+        label.innerHTML = `${f.label}: <input type="text" data-field="${f.name}" placeholder="${f.label} 입력">`;
+        label.querySelector('input').value = currentVal;
+        fieldsDiv.appendChild(label);
+    });
+
+    const imageLabel = document.createElement('label');
+    imageLabel.innerHTML = `이미지 URL (선택): <input type="text" data-field="__projectImageUrl" placeholder="https://...">`;
+    imageLabel.querySelector('input').value = itemEl.dataset.imageSrc || '';
+    fieldsDiv.appendChild(imageLabel);
+
+    const fileLabel = document.createElement('label');
+    fileLabel.innerHTML = `이미지 파일 (선택, 재선택 시 교체): <input type="file" accept="image/*" data-field="__projectImageFile">`;
+    fieldsDiv.appendChild(fileLabel);
+
+    const linkLabel = document.createElement('label');
+    linkLabel.innerHTML = `링크 URL (선택): <input type="text" data-field="__projectLink" placeholder="https://...">`;
+    linkLabel.querySelector('input').value = itemEl.dataset.projectLink || '';
+    fieldsDiv.appendChild(linkLabel);
+
+    document.getElementById('dynamicItemModal').classList.remove('hidden');
+
+    addBtn.onclick = async () => {
+        const values = {};
+        config.fields.forEach(f => {
+            const input = fieldsDiv.querySelector(`[data-field="${f.name}"]`);
+            values[f.name] = input?.value?.trim() || '';
+        });
+
+        const urlInput = fieldsDiv.querySelector(`[data-field="__projectImageUrl"]`);
+        const fileInput = fieldsDiv.querySelector(`[data-field="__projectImageFile"]`);
+        const linkInput = fieldsDiv.querySelector(`[data-field="__projectLink"]`);
+
+        let imageSrc = urlInput?.value?.trim() || itemEl.dataset.imageSrc || '';
+        const file = fileInput?.files?.[0] || null;
+        if (file) {
+            try { imageSrc = await readFileAsDataURL(file); } catch { imageSrc = ''; }
+        }
+        const link = linkInput?.value?.trim() || '';
+
+        updateProjectItem(itemEl, values, imageSrc, link);
+        addBtn.textContent = '추가';
+        document.getElementById('dynamicItemModal').classList.add('hidden');
+        saveAllData();
+    };
+}
+
+function updateProjectItem(itemEl, values, imageSrc, link) {
+    const config = dynamicItemConfig['project'];
+
+    // 썸네일 업데이트
+    let wrap = itemEl.querySelector('.project-thumb-wrap');
+    if (!wrap) {
+        wrap = document.createElement('div');
+        wrap.className = 'project-thumb-wrap';
+        itemEl.insertBefore(wrap, itemEl.firstChild);
+    }
+    wrap.innerHTML = '';
+    if (imageSrc) {
+        const img = document.createElement('img');
+        img.className = 'project-thumb';
+        img.src = imageSrc;
+        img.alt = '';
+        img.loading = 'lazy';
+        img.draggable = false;
+        wrap.appendChild(img);
+        itemEl.dataset.imageSrc = imageSrc;
+        itemEl.classList.add('project-has-image');
+    } else {
+        const ph = document.createElement('div');
+        ph.className = 'project-thumb-placeholder';
+        ph.textContent = 'No Image';
+        wrap.appendChild(ph);
+        delete itemEl.dataset.imageSrc;
+        itemEl.classList.remove('project-has-image');
+    }
+
+    // 콘텐츠 필드 업데이트
+    let contentEl = itemEl.querySelector('.item-content');
+    if (!contentEl) {
+        contentEl = document.createElement('div');
+        contentEl.className = 'item-content';
+        const del = itemEl.querySelector('.item-delete');
+        if (del) itemEl.insertBefore(contentEl, del);
+        else itemEl.appendChild(contentEl);
+    }
+    contentEl.innerHTML = '';
+    config.fields.forEach(f => {
+        const val = String(values?.[f.name] || '').trim();
+        if (!val) return;
+        const fieldEl = document.createElement('div');
+        fieldEl.className = 'item-field';
+        fieldEl.dataset.field = f.name;
+        fieldEl.innerHTML = `<strong>${escapeHtml(f.label)}:</strong> ${escapeHtml(val)}`;
+        contentEl.appendChild(fieldEl);
+    });
+
+    // 링크 업데이트
+    if (link) {
+        itemEl.dataset.projectLink = link;
+        itemEl.classList.add('project-has-link');
+    } else {
+        delete itemEl.dataset.projectLink;
+        itemEl.classList.remove('project-has-link');
     }
 }
 

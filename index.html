@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>김정희 포트폴리오</title>
+    <title>My Portfolio</title>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <!-- 편집모드 토글 -->
     <div class="edit-mode-bar">
@@ -18,7 +20,8 @@
     <nav class="main-nav" aria-label="섹션 이동">
         <div class="nav-inner">
             <a class="nav-brand" href="#about">Web Portfolio</a>
-            <button id="mobileNavToggle" class="nav-toggle" type="button" aria-label="메뉴 열기" aria-controls="mobileNavDrawer" aria-expanded="false">
+            <button id="mobileNavToggle" class="nav-toggle" type="button" aria-label="메뉴 열기"
+                aria-controls="mobileNavDrawer" aria-expanded="false">
                 <span class="nav-toggle-icon" aria-hidden="true">☰</span>
             </button>
             <div class="nav-links">
@@ -55,53 +58,116 @@
             <div class="hero">
                 <div class="hero-copy">
                     <p class="hero-kicker">ABOUT ME</p>
-                    <h1 class="hero-title">김정희 <span class="hero-title-sub">PORTFOLIO</span></h1>
+                    <h1 class="hero-title">김정희</h1>
+                    <p class="hero-tagline">직함 | 소개</p>
                     <p class="hero-lede">
-                        안녕하세요, 저는 (직업) 김정희입니다. 문제를 구조화하고, 작은 개선을 빠르게 반복하는 방식으로 결과물을 만듭니다.
+                        문제를 구조화하고, 작은 개선을 빠르게 반복하는 방식으로 결과물을 만듭니다.
                     </p>
+                    <div class="hero-contact">
+                        <a href="mailto:kimjh7302@naver.com" class="hero-contact-link">kimjh7302@naver.com</a>
+                        <a href="https://github.com/kinetas" class="hero-contact-link" target="_blank"
+                            rel="noreferrer">github.com/kinetas</a>
+                    </div>
                 </div>
-                <div class="profile-hero">
-                    <div class="profile-info">
-                        <div class="profile-photo-wrap">
-                            <img src="" alt="프로필 사진" class="profile-photo" id="profilePhoto">
-                            <span class="photo-placeholder">프로필 사진</span>
-                        </div>
-                        <div class="profile-details">
-                            <p class="info-row"><strong>생년월일</strong> <span id="birthdate"><!-- 직접 입력 --></span></p>
-                            <p class="info-row"><strong>전화번호</strong> <span id="phone"><!-- 직접 입력 --></span></p>
-                        </div>
-                    </div>
-                    <div class="intro-section">
-                        <p class="intro-text" id="introText"><!-- 직접 입력 --></p>
-                    </div>
+                <div class="hero-photo-col">
+                    <div class="avatar-placeholder">KJ</div>
                 </div>
             </div>
         </section>
 
         <!-- WORK -->
         <section class="page section" id="work">
-            <div class="page-header">
-                <h2>WORK</h2>
-                <div class="career-section">
-                    <h3>학력</h3>
-                    <div class="education-list" id="educationList">
-                        <p><!-- 예: OO대학교 OO학과 졸업 (20XX년) --></p>
+            <div class="section-header">
+                <h2 class="section-title">WORK</h2>
+            </div>
+
+            <div class="work-body">
+                <!-- 경력 타임라인 -->
+                <!--             
+                <div class="work-block">
+                    <h3 class="work-block-title">경력</h3>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-date">2023.03 — 현재</div>
+                            <div class="timeline-content">
+                                <div class="timeline-role">직책/역할</div>
+                                <div class="timeline-company">회사/기관명</div>
+                                <p class="timeline-desc">주요 업무 또는 성과 한 줄</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>               
+                -->
+
+                <!-- 학력 -->
+                <div class="work-block">
+                    <h3 class="work-block-title">학력</h3>
+                    <div class="education-block">
+                        <div class="education-degree">학사</div>
+                        <div class="education-school">계명대학교</div>
+                        <div class="education-year">2020 — 2026</div>
                     </div>
                 </div>
-                <h3>논문</h3>
-            </div>
-            <div class="canvas-area dynamic-area" data-page-id="career" id="canvas-career">
-                <!-- 우클릭 위치에 콘텐츠 생성, 드래그로 이동 -->
             </div>
         </section>
 
         <!-- SKILLS -->
         <section class="page section" id="skills">
-            <div class="page-header">
-                <h2>SKILLS</h2>
+            <div class="section-header">
+                <h2 class="section-title">SKILLS</h2>
             </div>
-            <div class="canvas-area dynamic-area" data-page-id="skills" id="canvas-skills">
-                <!-- 우클릭 위치에 콘텐츠 생성, 드래그로 구역 나누기 -->
+
+            <div class="skills-body">
+                <div class="skills-group">
+                    <h3 class="skills-category">언어</h3>
+                    <div class="skills-badges">
+                        <span class="badge">Python</span>
+                        <span class="badge">Java</span>
+                        <span class="badge">C</span>
+                        <span class="badge">C++</span>
+                        <span class="badge">C#</span>
+                        <span class="badge">JavaScript</span>
+                        <span class="badge">HTML/CSS</span>
+                        <span class="badge">SQL</span>
+                    </div>
+                </div>
+                <div class="skills-group">
+                    <h3 class="skills-category">프레임워크 / 라이브러리</h3>
+                    <div class="skills-badges">
+                        <span class="badge">React</span>
+                        <span class="badge">Node.js</span>
+                        <span class="badge">Express</span>
+                        <span class="badge">Scikit-learn</span>
+                        <span class="badge">Pandas</span>
+                        <span class="badge">NumPy</span>
+                    </div>
+                </div>
+                <div class="skills-group">
+                    <h3 class="skills-category">도구</h3>
+                    <div class="skills-badges">
+                        <span class="badge">MySQL</span>
+                        <span class="badge">PostgreSQL</span>
+                        <span class="badge">Linux</span>
+                        <span class="badge">Docker</span>
+                        <span class="badge">Git</span>
+                        <span class="badge">GitHub</span>
+                        <span class="badge">GitHub Actions</span>
+                        <span class="badge">AWS</span>
+                        <span class="badge">RDS</span>
+                        <span class="badge">S3</span>
+                        <span class="badge">ERwin</span>
+                        <span class="badge">draw.io</span>
+                        <span class="badge">VS Code</span>
+                        <span class="badge">cursor</span>
+                        <span class="badge">Claude Code</span>
+                    </div>
+                </div>
+                <div class="skills-group">
+                    <h3 class="skills-category">기타</h3>
+                    <div class="skills-badges">
+                        <span class="badge">MCP</span>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -139,7 +205,8 @@
                 <section class="github-card" aria-label="GitHub 프로필">
                     <div class="github-card-header">
                         <h3>프로필</h3>
-                        <a id="githubProfileLink" class="github-link" href="#" target="_blank" rel="noreferrer">GitHub에서 보기</a>
+                        <a id="githubProfileLink" class="github-link" href="#" target="_blank" rel="noreferrer">GitHub에서
+                            보기</a>
                     </div>
                     <div id="githubProfileBody" class="github-card-body">
                         <p class="github-placeholder">GitHub 아이디를 입력하고 “불러오기”를 눌러주세요.</p>
@@ -174,19 +241,21 @@
                 <div class="contact-grid">
                     <div class="contact-item">
                         <div class="contact-label">Email</div>
-                        <div class="contact-value"><a class="contact-link" href="mailto:your@email.com">your@email.com</a></div>
+                        <div class="contact-value"><a class="contact-link"
+                                href="mailto:kimjh7302@naver.com">kimjh7302@naver.com</a></div>
                     </div>
                     <div class="contact-item">
                         <div class="contact-label">GitHub</div>
-                        <div class="contact-value"><a class="contact-link" href="https://github.com/kinetas" target="_blank" rel="noreferrer">github.com/kinetas</a></div>
+                        <div class="contact-value"><a class="contact-link" href="https://github.com/kinetas"
+                                target="_blank" rel="noreferrer">github.com/kinetas</a></div>
                     </div>
                     <div class="contact-item">
                         <div class="contact-label">Phone</div>
-                        <div class="contact-value"><span class="contact-mono">010-0000-0000</span></div>
+                        <div class="contact-value"><span class="contact-mono">010-4948-7302</span></div>
                     </div>
                     <div class="contact-item">
                         <div class="contact-label">Location</div>
-                        <div class="contact-value">Seoul, KR</div>
+                        <div class="contact-value">Daegu, KR</div>
                     </div>
                 </div>
             </div>
@@ -259,4 +328,5 @@
     <script src="published_data.js"></script>
     <script src="app.js"></script>
 </body>
+
 </html>
