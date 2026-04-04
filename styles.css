@@ -336,12 +336,20 @@ body.mobile-nav-open .mobile-nav-drawer {
 }
 
 /* 섹션별 배경 — 정보 중심, 깔끔 */
-#about.page  { --section-backdrop: linear-gradient(var(--color-bg), var(--color-bg)); }
-#work.page   { --section-backdrop: linear-gradient(var(--color-surface), var(--color-surface)); }
-#skills.page { --section-backdrop: linear-gradient(var(--color-bg), var(--color-bg)); }
-#project.page { --section-backdrop: linear-gradient(var(--color-surface), var(--color-surface)); }
-#github.page  { --section-backdrop: linear-gradient(var(--color-surface), var(--color-surface)); }
-#contact.page { --section-backdrop: linear-gradient(var(--color-bg), var(--color-bg)); }
+#about.page  {
+    --section-backdrop: linear-gradient(rgba(2, 6, 23, 0.62), rgba(2, 6, 23, 0.62)), url('assets/aboutme_bg.jpg');
+    --section-backdrop-size: cover;
+    --section-backdrop-position: center;
+}
+#work.page    { --section-backdrop: linear-gradient(#f1f5f9, #f1f5f9); }
+#skills.page  { --section-backdrop: linear-gradient(#ffffff, #ffffff); }
+#project.page { --section-backdrop: linear-gradient(#f1f5f9, #f1f5f9); }
+#github.page  { --section-backdrop: linear-gradient(#ffffff, #ffffff); }
+#contact.page {
+    --section-backdrop: linear-gradient(rgba(2, 6, 23, 0.62), rgba(2, 6, 23, 0.62)), url('assets/contract_bg.jpg');
+    --section-backdrop-size: cover;
+    --section-backdrop-position: center;
+}
 
 /* 프로젝트 hover 이미지 미리보기 */
 .project-has-image {
@@ -387,6 +395,28 @@ body.mobile-nav-open .mobile-nav-drawer {
 
 #about.page .hero {
     width: 100%;
+}
+
+#about.page .hero-kicker,
+#about.page .hero-name-en,
+#about.page .hero-lede {
+    color: rgba(255, 255, 255, 0.72);
+}
+
+#about.page .hero-title {
+    color: #ffffff;
+}
+
+#about.page .hero-contact-link {
+    color: #0f172a;
+    background: #ffffff;
+    border-color: #ffffff;
+}
+
+#about.page .hero-contact-link:hover {
+    color: #0f172a;
+    background: rgba(255, 255, 255, 0.85);
+    border-color: rgba(255, 255, 255, 0.85);
 }
 
 /* ===== ABOUT 히어로 레이아웃 ===== */
