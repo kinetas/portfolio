@@ -1118,11 +1118,11 @@ function attachProjectHoverPreview(itemEl) {
         projectHoverPreviewEl.style.top = `${Math.max(pad, Math.min(vh - rect.height - pad, y))}px`;
     };
 
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
     itemEl.addEventListener('mouseenter', show);
     itemEl.addEventListener('mouseleave', hide);
     itemEl.addEventListener('mousemove', move);
-    itemEl.addEventListener('touchend', hide);
-    itemEl.addEventListener('touchcancel', hide);
 }
 
 function collectAllData() {
