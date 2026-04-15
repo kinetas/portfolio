@@ -9,7 +9,7 @@ let lastDragEndTime = 0;
 const STORAGE_KEY = 'portfolio_canvas_data';
 const GRID_SNAP = 8; // 배치 보정용 그리드 간격 (px)
 const PUBLISHED_DATA_GLOBAL = '__PUBLISHED_PORTFOLIO_DATA__';
-const MOBILE_BREAKPOINT_PX = 640;
+const MOBILE_BREAKPOINT_PX = 768;
 let desktopBoundsFixRaf = 0;
 const COLLISION_GAP_PX = 5;
 // 캔버스 안쪽 여백(아이템이 가장자리에 너무 붙지 않게)
