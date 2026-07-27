@@ -323,7 +323,7 @@ function renderGithubRepos(repos, fetchedAt) {
 
     const list = Array.isArray(repos) ? repos.filter(r => r && !r.fork) : [];
     const sorted = list.slice().sort((a, b) => (new Date(b.pushed_at).getTime() || 0) - (new Date(a.pushed_at).getTime() || 0));
-    const top = sorted.slice(0, 8);
+    const top = sorted.slice(0, 5);
 
     if (meta) meta.textContent = `${top.length}개 표시 · ${formatRelativeTime(fetchedAt)} 업데이트`;
 
@@ -366,7 +366,7 @@ function renderGithubActivity(events, fetchedAt) {
     const meta = document.getElementById('githubActivityMeta');
     if (!body) return;
 
-    const list = Array.isArray(events) ? events.slice(0, 12) : [];
+    const list = Array.isArray(events) ? events.slice(0, 5) : [];
     if (meta) meta.textContent = `${list.length}개 표시 · ${formatRelativeTime(fetchedAt)} 업데이트`;
 
     if (list.length === 0) {
