@@ -9,13 +9,6 @@
 </head>
 
 <body>
-    <!-- 편집모드 토글 -->
-    <div class="edit-mode-bar">
-        <button id="editModeToggle" class="edit-btn">편집모드</button>
-        <button id="exportPublishBtn" class="edit-btn" type="button">배포 파일 생성</button>
-        <span class="edit-status">편집 불가</span>
-    </div>
-
     <!-- 네비게이션 -->
     <nav class="main-nav" aria-label="섹션 이동">
         <div class="nav-inner">
@@ -60,12 +53,14 @@
                     <p class="hero-kicker">ABOUT ME</p>
                     <h1 class="hero-title">김정희</h1>
                     <p class="hero-name-en">Kim Jeong Hee</p>
-                    <p class="hero-tagline">직함(미정) | 소개</p>
+                    <p class="hero-tagline">데이터 기술자 | 논리적이고 AI 접목 가능한 데이터 기술자입니다.</p>
                     <p class="hero-lede">
-                        날 소개 하는 한마디 뭘 적지?
+                        데이터 모델 설계, 전처리 경험이 있으며
+                        Amazon RDS, ec2, s3 와 github actions + code deploy로 CI/CD와 백업과 파이프라이닝 가능하며
+                        최근에는 AI 오케스트레이션, llm에 관심을 가지고 있습니다.
                     </p>
                     <div class="hero-contact">
-                        <a href="mailto:kimjh7302@naver.com" class="hero-contact-link">kimjh7302@naver.com</a>
+                        <a href="mailto:kinetas7308@gmail.com" class="hero-contact-link">kinetas7308@gmail.com</a>
                         <a href="https://github.com/kinetas" class="hero-contact-link" target="_blank"
                             rel="noreferrer">github.com/kinetas</a>
                     </div>
@@ -115,12 +110,23 @@
                     <h3 class="work-block-title">자격증</h3>
                     <ul class="cert-list" id="certList">
                         <li class="cert-item">
+                            <span class="cert-name">1종보통운전면허증</span>
+                            <span class="cert-org">대구경찰청</span>
+                            <span class="cert-date">2020.01.22</span>
+                        </li>
+                        <li class="cert-item">
                             <span class="cert-name">SQLD</span>
                             <span class="cert-org">한국데이터산업진흥원</span>
                             <span class="cert-date">2026.03.27</span>
                         </li>
+                        <li class="cert-item">
+                            <span class="cert-name">정보처리기사</span>
+                            <span class="cert-org">한국산업인력공단</span>
+                            <span class="cert-date">2026.09.11(합격발표예정)</span>
+                        </li>
                     </ul>
                 </div>
+                
 
                 <div class="work-block">
                     <h3 class="work-block-title">교육</h3>
@@ -162,6 +168,12 @@
                         <span class="badge">Scikit-learn</span>
                         <span class="badge">Pandas</span>
                         <span class="badge">NumPy</span>
+                        <span class="badge">Spring Boot</span>
+                        <span class="badge">Spring MVC</span>
+                        <span class="badge">Spring Data JPA</span>
+                        <span class="badge">Spring Security</span>
+                        <span class="badge">Spring Batch</span>
+                        <span class="badge">FastAPI</span>
                     </div>
                 </div>
                 <div class="skills-group">
@@ -186,6 +198,10 @@
                         <span class="badge">cursor</span>
                         <span class="badge">Claude Code</span>
                         <span class="badge">LM studio</span>
+                        <span class="badge">GitHub Pages</span>
+                        <span class="badge">Git Flow</span>
+                        <span class="badge">Jenkins</span>
+                        <span class="badge">Ubuntu</span>
                     </div>
                 </div>
                 <div class="skills-group">
@@ -194,6 +210,30 @@
                         <span class="badge">MCP</span>
                         <span class="badge">MSA</span>
                         <span class="badge">Harness Engineering</span>
+                        <span class="badge">AI 오케스트레이션</span>
+                        <span class="badge">RAG</span>
+                        <span class="badge">CoT</span>
+                        <span class="badge">Crawling</span>
+                        <span class="badge">JSON</span>
+                        <span class="badge">JSON Web Token</span>
+                        <span class="badge">REST API</span>
+                    </div>
+                </div>
+                <div class="skills-group">
+                    <h3 class="skills-category">직무 분야</h3>
+                    <div class="skills-badges">
+                        <span class="badge">백엔드/서버개발</span>
+                        <span class="badge">아키텍쳐</span>
+                        <span class="badge">DB</span>
+                        <span class="badge">DBA</span>
+                        <span class="badge">데이터전처리</span>
+                        <span class="badge">데이터시각화</span>
+                        <span class="badge">데이터마이닝</span>
+                        <span class="badge">데이터라벨링</span>
+                        <span class="badge">데이터분석</span>
+                        <span class="badge">IT컨설팅</span>
+                        <span class="badge">웹개발</span>
+                        <span class="badge">앱개발</span>
                     </div>
                 </div>
             </div>
@@ -205,8 +245,17 @@
                 <h2>PROJECT</h2>
                 <h3>참여 프로젝트</h3>
             </div>
-            <div class="canvas-area dynamic-area" data-page-id="portfolio" id="canvas-portfolio">
-                <!-- 우클릭 위치에 콘텐츠 생성 -->
+            <div class="project-grid">
+                <a class="project-card" href="https://github.com/kinetas/nodetest" target="_blank" rel="noreferrer">
+                    <div class="project-thumb-wrap">
+                        <img class="project-thumb" src="assets/project-mission-share.png" alt="미션공유앱" loading="lazy">
+                    </div>
+                    <div class="project-card-body">
+                        <h3 class="project-card-title">미션공유앱</h3>
+                        <p class="project-card-role">백엔드,DevOps,아키텍처 설계</p>
+                        <p class="project-card-desc">자기개발,자기개선의 목적으로 혼자 하면 목표를 잃어버릴 가능성이 있지만 observer effect를 통해 지속적 동기를 부여해주는 앱을 제작</p>
+                    </div>
+                </a>
             </div>
         </section>
 
@@ -214,14 +263,13 @@
         <section class="page section" id="github">
             <div class="page-header">
                 <h2>GITHUB</h2>
-                <p class="page-subtitle">GitHub API로 프로필/레포지토리/최근 활동을 불러와 자동으로 최신화합니다.</p>
-
                 <div class="github-controls">
-                    <div class="github-fixed-user">
+                    <!-- <div class="github-fixed-user">
                         <span class="github-fixed-label">GitHub 아이디</span>
                         <span class="github-fixed-value">kinetas</span>
                         <input type="hidden" id="githubUsername" value="kinetas">
-                    </div>
+                    </div> -->
+                    <input type="hidden" id="githubUsername" value="kinetas">
                     <div class="github-actions">
                         <button id="githubRefreshBtn" class="modal-btn secondary" type="button">새로고침</button>
                     </div>
@@ -237,7 +285,7 @@
                             보기</a>
                     </div>
                     <div id="githubProfileBody" class="github-card-body">
-                        <p class="github-placeholder">GitHub 아이디를 입력하고 “불러오기”를 눌러주세요.</p>
+                        <p class="github-placeholder">GitHub 아이디를 입력 후 “불러오기”</p>
                     </div>
                 </section>
 
@@ -270,7 +318,7 @@
                     <div class="contact-item">
                         <div class="contact-label">Email</div>
                         <div class="contact-value"><a class="contact-link"
-                                href="mailto:kimjh7302@naver.com">kimjh7302@naver.com</a></div>
+                                href="mailto:kinetas7308@gmail.com">kinetas7308@gmail.com</a></div>
                     </div>
                     <div class="contact-item">
                         <div class="contact-label">GitHub</div>
@@ -290,70 +338,6 @@
         </section>
     </main>
 
-    <!-- 우클릭 툴박스 -->
-    <div id="contextToolbox" class="toolbox hidden"></div>
-
-    <!-- 검색 모달 -->
-    <div id="searchModal" class="modal hidden">
-        <div class="modal-content">
-            <h3>검색</h3>
-            <input type="text" id="searchInput" placeholder="검색할 내용 입력...">
-            <button id="searchExecute" class="modal-btn">검색</button>
-            <div id="searchResults" class="search-results"></div>
-            <button id="searchClose" class="modal-btn secondary">닫기</button>
-        </div>
-    </div>
-
-    <!-- 컨텐츠 박스 추가 모달 -->
-    <div id="contentBoxModal" class="modal hidden">
-        <div class="modal-content">
-            <h3>컨텐츠 박스 추가</h3>
-            <input type="text" id="contentBoxText" placeholder="내용 입력...">
-            <input type="text" id="contentBoxTags" placeholder="태그 (쉼표로 구분)">
-            <label>이미지 URL (선택): <input type="text" id="contentBoxImage" placeholder="이미지 URL"></label>
-            <button id="contentBoxAdd" class="modal-btn">추가</button>
-            <button id="contentBoxCancel" class="modal-btn secondary">취소</button>
-        </div>
-    </div>
-
-    <!-- 표 추가 모달 -->
-    <div id="tableModal" class="modal hidden">
-        <div class="modal-content">
-            <h3>표 추가</h3>
-            <label>행: <input type="number" id="tableRows" value="3" min="1" max="10"></label>
-            <label>열: <input type="number" id="tableCols" value="3" min="1" max="6"></label>
-            <button id="tableAdd" class="modal-btn">추가</button>
-            <button id="tableCancel" class="modal-btn secondary">취소</button>
-        </div>
-    </div>
-
-    <!-- 이미지 추가 모달 -->
-    <div id="imageModal" class="modal hidden">
-        <div class="modal-content">
-            <h3>이미지 추가</h3>
-            <label>이미지 URL: <input type="text" id="imageUrl" placeholder="https://..."></label>
-            <p class="modal-divider">또는</p>
-            <label class="file-label">
-                <span class="file-btn">파일 선택</span>
-                <input type="file" id="imageFile" accept="image/*" style="display:none">
-            </label>
-            <span id="imageFileName" class="file-name"></span>
-            <button id="imageAdd" class="modal-btn">추가</button>
-            <button id="imageCancel" class="modal-btn secondary">취소</button>
-        </div>
-    </div>
-
-    <!-- 동적 항목 추가 모달 -->
-    <div id="dynamicItemModal" class="modal hidden">
-        <div class="modal-content">
-            <h3 id="dynamicItemTitle">항목 추가</h3>
-            <div id="dynamicItemFields"></div>
-            <button id="dynamicItemAdd" class="modal-btn">추가</button>
-            <button id="dynamicItemCancel" class="modal-btn secondary">취소</button>
-        </div>
-    </div>
-
-    <script src="published_data.js"></script>
     <script src="app.js"></script>
 </body>
 

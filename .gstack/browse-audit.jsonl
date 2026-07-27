@@ -1,0 +1,19 @@
+{"ts":"2026-07-27T03:27:17.203Z","cmd":"goto","args":"http://127.0.0.1:8123/index.html","origin":"http://127.0.0.1:8123/index.html","durationMs":262,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-07-27T03:27:17.413Z","cmd":"console","args":"","origin":"http://127.0.0.1:8123/index.html","durationMs":1,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-07-27T03:27:17.566Z","cmd":"text","args":"","origin":"http://127.0.0.1:8123/index.html","durationMs":6,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-07-27T03:27:20.851Z","cmd":"is","args":"visible #canvas-portfolio","origin":"http://127.0.0.1:8123/index.html","durationMs":22,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-07-27T03:27:21.023Z","cmd":"html","args":"#canvas-portfolio","origin":"http://127.0.0.1:8123/index.html","durationMs":28,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-07-27T03:27:22.239Z","cmd":"screenshot","args":"C:/Users/ADMINI~1/AppData/Local/Temp/portfolio_full.png","origin":"http://127.0.0.1:8123/index.html","durationMs":1023,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-07-27T03:27:31.580Z","cmd":"is","args":"visible #editModeToggle","origin":"http://127.0.0.1:8123/index.html","durationMs":2,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-07-27T03:27:31.713Z","cmd":"is","args":"visible .edit-mode-bar","origin":"http://127.0.0.1:8123/index.html","durationMs":2,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-07-27T03:27:31.853Z","cmd":"viewport","args":"390x844","origin":"http://127.0.0.1:8123/index.html","durationMs":7,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-07-27T03:27:32.251Z","cmd":"screenshot","args":"C:/Users/ADMINI~1/AppData/Local/Temp/portfolio_mobile.png","origin":"http://127.0.0.1:8123/index.html","durationMs":248,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-07-27T03:44:01.402Z","cmd":"viewport","args":"1280x900","origin":"about:blank","durationMs":4,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-07-27T03:44:01.719Z","cmd":"goto","args":"http://127.0.0.1:8124/index.html#skills","origin":"http://127.0.0.1:8124/index.html#skills","durationMs":163,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-07-27T03:44:02.078Z","cmd":"console","args":"","origin":"http://127.0.0.1:8124/index.html#skills","durationMs":1,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-07-27T03:44:02.788Z","cmd":"screenshot","args":"C:/Users/ADMINI~1/AppData/Local/Temp/skills_check.png --selector #skills","origin":"http://127.0.0.1:8124/index.html#skills","durationMs":534,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-07-27T05:04:49.422Z","cmd":"viewport","args":"1280x900","origin":"about:blank","durationMs":4,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-07-27T05:04:49.727Z","cmd":"goto","args":"http://127.0.0.1:8125/index.html","origin":"http://127.0.0.1:8125/index.html","durationMs":156,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-07-27T05:04:49.885Z","cmd":"console","args":"","origin":"http://127.0.0.1:8125/index.html","durationMs":1,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-07-27T05:04:50.424Z","cmd":"screenshot","args":"C:/Users/ADMINI~1/AppData/Local/Temp/final_about.png --selector #about","origin":"http://127.0.0.1:8125/index.html","durationMs":398,"status":"ok","hasCookies":false,"mode":"launched"}
+{"ts":"2026-07-27T05:04:50.685Z","cmd":"screenshot","args":"C:/Users/ADMINI~1/AppData/Local/Temp/final_project.png --selector #project","origin":"http://127.0.0.1:8125/index.html","durationMs":130,"status":"ok","hasCookies":false,"mode":"launched"}
