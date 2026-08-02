@@ -219,6 +219,12 @@ body.mobile-nav-open .mobile-nav-drawer {
     font-size: 14px;
     border-radius: 999px;
     transition: all 0.2s;
+    outline: none;
+}
+
+.nav-link:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
 }
 
 .nav-link:hover {
