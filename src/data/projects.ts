@@ -1,6 +1,8 @@
 import missionShareThumb from '../assets/project-mission-share.png'
 import harnessEngineeringThumb from '../assets/project-harness-engineering.png'
-import valuepickThumb from 'https://github.com/project-valuepick/valuepick/blob/main/docs/img/%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EC%95%84%ED%82%A4%ED%85%8D%EC%B3%90.png'
+
+const valuepickThumb =
+  'https://raw.githubusercontent.com/project-valuepick/valuepick/main/docs/img/%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EC%95%84%ED%82%A4%ED%85%8D%EC%B3%90.png'
 
 export interface Project {
   title: string
