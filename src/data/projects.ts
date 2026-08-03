@@ -32,7 +32,7 @@ export const projects: Project[] = [
     title: 'valuepick',
     href: 'https://github.com/project-valuepick/valuepick',
     thumb: valuepickThumb,
-    role: '백엔드,프론트엔드,배포',
+    role: '백엔드,프론트엔드,배포,아키텍처 설계,DB설계',
     desc: 'DART 재무제표, 시세, KRX 지수, 환율 데이터를 매일 수집해 PER/PBR/ROE 및 Piotroski F-Score 기반 멀티팩터 스코어링으로 저평가 우량주를 추천하는 가치투자 스크리닝 서비스. 투자일지 기능, 실시간 시세 반영을 개발하고 Docker/Jenkins 기반 배포를 담당',
     date: '2026.06 - 2026.07',
   },

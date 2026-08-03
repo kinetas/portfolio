@@ -12,7 +12,7 @@ export default function GithubSection({ sectionRef }: GithubSectionProps) {
 
   return (
     <section className="page section" id="github" ref={sectionRef}>
-      <div className="page-header">
+      <div className="page-header reveal reveal-heading">
         <h2>GITHUB</h2>
         <div className="github-controls">
           <div className="github-actions">
@@ -26,7 +26,7 @@ export default function GithubSection({ sectionRef }: GithubSectionProps) {
         </div>
       </div>
 
-      <div className="github-grid">
+      <div className="github-grid reveal-group">
         <GithubProfile username={GITHUB_DEFAULT_USERNAME} profile={profile} loading={loading} error={error} />
         <GithubRepoList repos={repos} fetchedAt={fetchedAt} />
         <GithubActivity events={events} fetchedAt={fetchedAt} />

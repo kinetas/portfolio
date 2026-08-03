@@ -1,4 +1,5 @@
 import { useSectionNav } from './hooks/useSectionNav'
+import { useScrollReveal } from './hooks/useScrollReveal'
 import Nav from './components/Nav'
 import About from './components/About'
 import Work from './components/Work'
@@ -9,6 +10,7 @@ import Contact from './components/Contact'
 
 export default function App() {
   const nav = useSectionNav()
+  useScrollReveal()
 
   return (
     <>

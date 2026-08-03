@@ -7,12 +7,12 @@ interface WorkProps {
 export default function Work({ sectionRef }: WorkProps) {
   return (
     <section className="page section" id="work" ref={sectionRef}>
-      <div className="section-header">
+      <div className="section-header reveal reveal-heading">
         <h2 className="section-title">WORK</h2>
       </div>
 
-      <div className="work-body">
-        <div className="work-block">
+      <div className="work-body reveal-group">
+        <div className="work-block reveal">
           <h3 className="work-block-title">학력</h3>
           <div className="education-block">
             <div className="education-degree">학사</div>
@@ -21,7 +21,7 @@ export default function Work({ sectionRef }: WorkProps) {
           </div>
         </div>
 
-        <div className="work-block">
+        <div className="work-block reveal">
           <h3 className="work-block-title">자격증</h3>
           <ul className="cert-list" id="certList">
             {certs.map((cert) => (
@@ -34,7 +34,7 @@ export default function Work({ sectionRef }: WorkProps) {
           </ul>
         </div>
 
-        <div className="work-block">
+        <div className="work-block reveal">
           <h3 className="work-block-title">교육</h3>
           <div className="education-block">
             <div className="education-degree">공공데이터E 풀스택-개발자</div>

@@ -9,7 +9,7 @@ export default function GithubActivity({ events, fetchedAt }: GithubActivityProp
   const list = Array.isArray(events) ? events.slice(0, 5) : []
 
   return (
-    <section className="github-card" aria-label="최근 활동">
+    <section className="github-card reveal-fade" aria-label="최근 활동">
       <div className="github-card-header">
         <h3>최근 활동</h3>
         <span className="github-meta">{list.length > 0 ? `${list.length}개 표시 · ${formatRelativeTime(fetchedAt ?? 0)} 업데이트` : ''}</span>

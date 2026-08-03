@@ -7,13 +7,13 @@ interface SkillsProps {
 export default function Skills({ sectionRef }: SkillsProps) {
   return (
     <section className="page section" id="skills" ref={sectionRef}>
-      <div className="section-header">
+      <div className="section-header reveal reveal-heading">
         <h2 className="section-title">SKILLS</h2>
       </div>
 
-      <div className="skills-body">
+      <div className="skills-body reveal-group">
         {skillGroups.map((group) => (
-          <div className="skills-group" key={group.category}>
+          <div className="skills-group reveal" key={group.category}>
             <h3 className="skills-category">{group.category}</h3>
             <div className="skills-badges">
               {group.items.map((item) => (

@@ -11,7 +11,7 @@ export default function GithubProfile({ username, profile, loading, error }: Git
   const htmlUrl = profile?.html_url || `https://github.com/${encodeURIComponent(username)}`
 
   return (
-    <section className="github-card" aria-label="GitHub 프로필">
+    <section className="github-card reveal-fade" aria-label="GitHub 프로필">
       <div className="github-card-header">
         <h3>프로필</h3>
         <a id="githubProfileLink" className="github-link" href={htmlUrl} target="_blank" rel="noreferrer">

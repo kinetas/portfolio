@@ -1,0 +1,101 @@
+/* =====================================================================
+   모션 시스템
+   철학: 데이터가 절제되게 정돈되어 드러나는 느낌. 통통 튀는 효과나 큰 이동 없이,
+   콘텐츠 성격에 따라 아래 4가지 변형만 사용해 다양성과 통일성을 동시에 확보한다.
+   모든 변형은 같은 이징/속도 계열(--motion-*)을 공유한다.
+
+   .reveal          텍스트 · 리스트 항목(히어로, work-block, skills-group, contact-item)
+                     — 짧은 페이드 + 상승
+   .reveal-card     카드형 요소(프로젝트 카드) — 페이드 + 상승 + 미세 스케일
+                     (호버 리프트와 같은 방향성으로 "카드"라는 성격을 강조)
+   .reveal-fade     정보 밀도가 높은 영역(깃허브 카드) — 순수 페이드만
+                     (여러 요소가 동시에 움직이면 산만해지므로 이동 없이 절제)
+   .reveal-heading  섹션 헤더(WORK/SKILLS/PROJECT/GITHUB/CONTACT) — .reveal과 함께
+                     사용, accent 컬러 밑줄이 그려지는 시그니처 모션으로 섹션 진입을 알림
+
+   사용법: 요소에 위 클래스 추가 → useScrollReveal 훅이 뷰포트 진입 시 .is-visible 부여.
+   여러 요소를 순차적으로 띄우려면 부모에 .reveal-group, 각 자식에 위 클래스 중 하나를 추가.
+   ===================================================================== */
+
+:root {
+    --motion-ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --motion-fast: 0.45s;
+    --motion-base: 0.6s;
+}
+
+.reveal,
+.reveal-card,
+.reveal-fade {
+    opacity: 0;
+}
+
+.reveal.is-visible,
+.reveal-card.is-visible,
+.reveal-fade.is-visible {
+    opacity: 1;
+}
+
+.reveal {
+    transform: translateY(16px);
+    transition: opacity var(--motion-base) var(--motion-ease), transform var(--motion-base) var(--motion-ease);
+}
+
+.reveal-card {
+    transform: translateY(16px) scale(0.98);
+    transition: opacity var(--motion-base) var(--motion-ease), transform var(--motion-base) var(--motion-ease);
+}
+
+.reveal.is-visible,
+.reveal-card.is-visible {
+    transform: none;
+}
+
+.reveal-fade {
+    transition: opacity var(--motion-fast) var(--motion-ease);
+}
+
+/* 섹션 헤더 시그니처 밑줄 — .reveal과 함께 사용 */
+.reveal-heading {
+    position: relative;
+}
+
+.reveal-heading::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background: var(--color-accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--motion-base) var(--motion-ease) 0.12s;
+}
+
+.reveal-heading.is-visible::after {
+    transform: scaleX(1);
+}
+
+/* 순차 등장 — 부모 .reveal-group 안의 자식들에 지연 시간 부여 */
+.reveal-group > :is(.reveal, .reveal-card, .reveal-fade):nth-child(1) { transition-delay: 0.03s; }
+.reveal-group > :is(.reveal, .reveal-card, .reveal-fade):nth-child(2) { transition-delay: 0.08s; }
+.reveal-group > :is(.reveal, .reveal-card, .reveal-fade):nth-child(3) { transition-delay: 0.13s; }
+.reveal-group > :is(.reveal, .reveal-card, .reveal-fade):nth-child(4) { transition-delay: 0.18s; }
+.reveal-group > :is(.reveal, .reveal-card, .reveal-fade):nth-child(5) { transition-delay: 0.23s; }
+.reveal-group > :is(.reveal, .reveal-card, .reveal-fade):nth-child(6) { transition-delay: 0.28s; }
+.reveal-group > :is(.reveal, .reveal-card, .reveal-fade):nth-child(n + 7) { transition-delay: 0.32s; }
+
+@media (prefers-reduced-motion: reduce) {
+    .reveal,
+    .reveal-card,
+    .reveal-fade {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+
+    .reveal-heading::after {
+        transition: none;
+        transform: scaleX(1);
+    }
+}

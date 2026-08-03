@@ -16,7 +16,7 @@ export default function GithubRepoList({ repos, fetchedAt }: GithubRepoListProps
   }, [repos])
 
   return (
-    <section className="github-card" aria-label="레포지토리">
+    <section className="github-card reveal-fade" aria-label="레포지토리">
       <div className="github-card-header">
         <h3>최근 업데이트 레포</h3>
         <span className="github-meta">{top.length > 0 ? `${top.length}개 표시 · ${formatRelativeTime(fetchedAt ?? 0)} 업데이트` : ''}</span>
