@@ -68,52 +68,81 @@ export function useSectionNav() {
     [getHeaderOffset],
   )
 
+  const suppressScrollSpyRef = useRef(false)
+  const suppressTimerRef = useRef<number | null>(null)
+
   const goToSection = useCallback(
     (id: string) => {
       closeMobileNav()
+      suppressScrollSpyRef.current = true
+      if (suppressTimerRef.current) window.clearTimeout(suppressTimerRef.current)
+
       scrollToSection(id, 'smooth')
       history.replaceState(null, '', `#${id}`)
       setActiveId(id)
+
+      const clearSuppress = () => {
+        suppressScrollSpyRef.current = false
+        window.removeEventListener('scrollend', clearSuppress)
+      }
+      window.addEventListener('scrollend', clearSuppress, { once: true })
+      // Fallback for browsers without `scrollend` (Safari < 17.4) or if the
+      // scroll is interrupted before firing it.
+      suppressTimerRef.current = window.setTimeout(clearSuppress, 900)
     },
     [closeMobileNav, scrollToSection],
   )
 
+  // Position-based scrollspy: pick the last section whose top has crossed
+  // the header line. Ratio-based IntersectionObserver logic penalized tall
+  // sections (e.g. GITHUB, which stacks three cards in one column) because
+  // their intersection ratio rarely climbed high enough to "win" against
+  // shorter neighboring sections.
   useEffect(() => {
-    if (!('IntersectionObserver' in window)) return
+    let ticking = false
 
-    let observer: IntersectionObserver | null = null
+    const computeActive = () => {
+      const offset = getHeaderOffset() + 1
+      let current: string = SECTION_IDS[0]
 
-    const observeAll = () => {
-      observer?.disconnect()
-      observer = new IntersectionObserver(
-        (entries) => {
-          const visible = entries
-            .filter((e) => e.isIntersecting)
-            .sort((a, b) => (b.intersectionRatio || 0) - (a.intersectionRatio || 0))[0]
-          if (visible?.target?.id) setActiveId(visible.target.id)
-        },
-        {
-          root: null,
-          threshold: [0.12, 0.25, 0.4, 0.6],
-          rootMargin: `-${getHeaderOffset()}px 0px -60% 0px`,
-        },
-      )
-      SECTION_IDS.forEach((id) => {
+      for (const id of SECTION_IDS) {
         const el = sectionRefs.current[id]
-        if (el) observer!.observe(el)
+        if (!el) continue
+        if (el.getBoundingClientRect().top - offset <= 0) {
+          current = id
+        } else {
+          break
+        }
+      }
+
+      const doc = document.documentElement
+      const atBottom = window.innerHeight + window.scrollY >= doc.scrollHeight - 2
+      if (atBottom) current = SECTION_IDS[SECTION_IDS.length - 1]
+
+      setActiveId(current)
+    }
+
+    const onScroll = () => {
+      if (suppressScrollSpyRef.current) return
+      if (ticking) return
+      ticking = true
+      requestAnimationFrame(() => {
+        computeActive()
+        ticking = false
       })
     }
 
-    observeAll()
-
     const onResize = () => {
       if (!isMobileViewport()) closeMobileNav()
-      observeAll()
+      computeActive()
     }
+
+    window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('resize', onResize)
+    computeActive()
 
     return () => {
-      observer?.disconnect()
+      window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', onResize)
     }
   }, [getHeaderOffset, closeMobileNav])
