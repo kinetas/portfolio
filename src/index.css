@@ -603,6 +603,20 @@ body.mobile-nav-open .mobile-nav-drawer {
     gap: var(--space-4);
 }
 
+.skills-subtitle {
+    font-size: var(--text-sm);
+    font-weight: 700;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.10em;
+    margin-bottom: var(--space-2);
+}
+
+.skills-groups {
+    display: grid;
+    gap: var(--space-4);
+}
+
 .skills-group {
     display: grid;
     gap: var(--space-2);
@@ -659,8 +673,6 @@ body.mobile-nav-open .mobile-nav-drawer {
 }
 
 .skills-detail {
-    display: grid;
-    gap: var(--space-4);
     overflow: hidden;
     max-height: 0;
     opacity: 0;

@@ -3,16 +3,6 @@ export interface SkillGroup {
   items: string[]
 }
 
-// AI/데이터 관련 대표 스킬 — SKILLS 섹션에서 항상 노출된다.
-export const featuredSkills: string[] = [
-  'Python', 'SQL',
-  'Scikit-learn', 'Pandas', 'NumPy', 'PyTorch', 'LangChain', 'HuggingFace Transformers',
-  'FastAPI', 'Statsmodels', 'PySpark', 'XGBoost', 'LightGBM', 'Imbalanced-learn', 'YData-profiling',
-  'Matplotlib', 'Seaborn', 'Streamlit', 'SciPy',
-  'ChromaDB', 'Jupyter',
-  'MCP', 'RAG', 'CoT', 'AI 오케스트레이션', 'Ollama', 'Groq', 'OpenAI API', '모델 파인튜닝', 'Crawling',
-]
-
 export const skillGroups: SkillGroup[] = [
   {
     category: '언어',
@@ -46,3 +36,21 @@ export const skillGroups: SkillGroup[] = [
     ],
   },
 ]
+
+// AI/데이터 관련 대표 스킬 이름 — SKILLS 섹션 기본 화면에 노출된다.
+const featuredSkillNames = new Set([
+  'Python', 'SQL',
+  'Scikit-learn', 'Pandas', 'NumPy', 'PyTorch', 'LangChain', 'HuggingFace Transformers',
+  'FastAPI', 'Statsmodels', 'PySpark', 'SciPy', 'XGBoost', 'LightGBM', 'Imbalanced-learn',
+  'YData-profiling', 'Matplotlib', 'Seaborn', 'Streamlit',
+  'MySQL', 'PostgreSQL', 'ChromaDB', 'SQLite', 'Redis', 'ERwin', 'Jupyter',
+  'MCP', 'RAG', 'CoT', 'AI 오케스트레이션', 'Ollama', 'Groq', 'OpenAI API', '모델 파인튜닝', 'Crawling',
+])
+
+// skillGroups와 동일한 카테고리 구조를 유지하되, AI/데이터 관련 항목만 남긴 버전.
+export const featuredSkillGroups: SkillGroup[] = skillGroups
+  .map((group) => ({
+    category: group.category,
+    items: group.items.filter((item) => featuredSkillNames.has(item)),
+  }))
+  .filter((group) => group.items.length > 0)

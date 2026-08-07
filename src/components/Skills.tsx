@@ -1,8 +1,27 @@
 import { useState } from 'react'
-import { skillGroups, featuredSkills } from '../data/skills'
+import { skillGroups, featuredSkillGroups, type SkillGroup } from '../data/skills'
 
 interface SkillsProps {
   sectionRef: (el: HTMLElement | null) => void
+}
+
+function SkillGroupList({ groups, badgeClassName }: { groups: SkillGroup[]; badgeClassName?: string }) {
+  return (
+    <>
+      {groups.map((group) => (
+        <div className="skills-group" key={group.category}>
+          <h3 className="skills-category">{group.category}</h3>
+          <div className="skills-badges">
+            {group.items.map((item) => (
+              <span className={`badge${badgeClassName ? ` ${badgeClassName}` : ''}`} key={item}>
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
+      ))}
+    </>
+  )
 }
 
 export default function Skills({ sectionRef }: SkillsProps) {
@@ -15,14 +34,10 @@ export default function Skills({ sectionRef }: SkillsProps) {
       </div>
 
       <div className="skills-body reveal-group">
-        <div className="skills-group reveal">
-          <h3 className="skills-category">AI &amp; 데이터</h3>
-          <div className="skills-badges">
-            {featuredSkills.map((item) => (
-              <span className="badge badge-featured" key={item}>
-                {item}
-              </span>
-            ))}
+        <div className="reveal">
+          <p className="skills-subtitle">AI &amp; 데이터</p>
+          <div className="skills-groups">
+            <SkillGroupList groups={featuredSkillGroups} badgeClassName="badge-featured" />
           </div>
         </div>
 
@@ -36,18 +51,10 @@ export default function Skills({ sectionRef }: SkillsProps) {
         </button>
 
         <div className={`skills-detail${expanded ? ' skills-detail--open' : ''}`}>
-          {skillGroups.map((group) => (
-            <div className="skills-group" key={group.category}>
-              <h3 className="skills-category">{group.category}</h3>
-              <div className="skills-badges">
-                {group.items.map((item) => (
-                  <span className="badge" key={item}>
-                    {item}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ))}
+          <p className="skills-subtitle">전체</p>
+          <div className="skills-groups">
+            <SkillGroupList groups={skillGroups} />
+          </div>
         </div>
       </div>
     </section>
