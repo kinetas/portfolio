@@ -633,6 +633,45 @@ body.mobile-nav-open .mobile-nav-drawer {
     font-weight: 500;
 }
 
+.badge-featured {
+    background: rgba(13, 110, 253, 0.08);
+    border-color: rgba(13, 110, 253, 0.35);
+    color: var(--color-accent);
+}
+
+.skills-toggle {
+    justify-self: start;
+    padding: 6px 16px;
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.skills-toggle:hover,
+.skills-toggle[aria-expanded="true"] {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+}
+
+.skills-detail {
+    display: grid;
+    gap: var(--space-4);
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.4s ease, opacity 0.3s ease;
+}
+
+.skills-detail--open {
+    max-height: 2000px;
+    opacity: 1;
+}
+
 /* ===== 캔버스 영역 (드래그 가능 콘텐츠) ===== */
 .canvas-area {
     position: relative;

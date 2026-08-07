@@ -3,6 +3,16 @@ export interface SkillGroup {
   items: string[]
 }
 
+// AI/데이터 관련 대표 스킬 — SKILLS 섹션에서 항상 노출된다.
+export const featuredSkills: string[] = [
+  'Python', 'SQL',
+  'Scikit-learn', 'Pandas', 'NumPy', 'PyTorch', 'LangChain', 'HuggingFace Transformers',
+  'FastAPI', 'Statsmodels', 'PySpark', 'XGBoost', 'LightGBM', 'Imbalanced-learn', 'YData-profiling',
+  'Matplotlib', 'Seaborn', 'Streamlit', 'SciPy',
+  'ChromaDB', 'Jupyter',
+  'MCP', 'RAG', 'CoT', 'AI 오케스트레이션', 'Ollama', 'Groq', 'OpenAI API', '모델 파인튜닝', 'Crawling',
+]
+
 export const skillGroups: SkillGroup[] = [
   {
     category: '언어',
